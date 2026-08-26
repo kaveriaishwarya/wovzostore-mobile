@@ -21,6 +21,9 @@ import '../../features/analytics/presentation/bloc/product_performance_cubit.dar
 import '../../features/analytics/presentation/bloc/category_brand_cubit.dart';
 import '../../features/analytics/presentation/bloc/customer_analytics_cubit.dart';
 import '../../features/analytics/presentation/bloc/inventory_report_cubit.dart';
+import '../../features/catalog/data/datasources/catalog_remote_datasource.dart';
+import '../../features/catalog/data/repositories/catalog_repository_impl.dart';
+import '../../features/catalog/domain/repositories/catalog_repository.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -189,6 +192,24 @@ void setupAuthInjection({Dio? dioInstance}) {
   }
 }
 
+void setupCatalogInjection({Dio? dioInstance}) {
+  setupCoreInjection(dioInstance: dioInstance);
+
+  if (!sl.isRegistered<CatalogRemoteDataSource>()) {
+    sl.registerLazySingleton<CatalogRemoteDataSource>(
+      () => CatalogRemoteDataSourceImpl(dio: sl<Dio>()),
+    );
+  }
+
+  if (!sl.isRegistered<CatalogRepository>()) {
+    sl.registerLazySingleton<CatalogRepository>(
+      () => CatalogRepositoryImpl(
+        remoteDataSource: sl<CatalogRemoteDataSource>(),
+      ),
+    );
+  }
+}
+
 /// Root DI setup method calling core and feature setup.
 void setupInjection({
   ApiConfig? config,
@@ -202,6 +223,7 @@ void setupInjection({
     dioInstance: dioInstance,
     onSessionExpired: onSessionExpired,
   );
-  setupAuthInjection(dioInstance: dioInstance);
   setupAnalyticsInjection(dioInstance: dioInstance);
+  setupAuthInjection(dioInstance: dioInstance);
+  setupCatalogInjection(dioInstance: dioInstance);
 }
