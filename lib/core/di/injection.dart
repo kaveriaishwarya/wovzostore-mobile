@@ -27,6 +27,12 @@ import '../../features/catalog/domain/repositories/catalog_repository.dart';
 import '../../features/catalog/presentation/bloc/catalog_cubit.dart';
 import '../../features/catalog/presentation/bloc/product_details_cubit.dart';
 import '../../features/catalog/presentation/bloc/product_list_cubit.dart';
+import '../../features/cart/data/datasources/cart_remote_datasource.dart';
+import '../../features/cart/data/repositories/cart_repository_impl.dart';
+import '../../features/cart/domain/repositories/cart_repository.dart';
+import '../../features/wishlist/data/datasources/wishlist_remote_datasource.dart';
+import '../../features/wishlist/data/repositories/wishlist_repository_impl.dart';
+import '../../features/wishlist/domain/repositories/wishlist_repository.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -231,6 +237,42 @@ void setupCatalogInjection({Dio? dioInstance}) {
   }
 }
 
+void setupCartInjection({Dio? dioInstance}) {
+  setupCoreInjection(dioInstance: dioInstance);
+
+  if (!sl.isRegistered<CartRemoteDataSource>()) {
+    sl.registerLazySingleton<CartRemoteDataSource>(
+      () => CartRemoteDataSourceImpl(dio: sl<Dio>()),
+    );
+  }
+
+  if (!sl.isRegistered<CartRepository>()) {
+    sl.registerLazySingleton<CartRepository>(
+      () => CartRepositoryImpl(
+        remoteDataSource: sl<CartRemoteDataSource>(),
+      ),
+    );
+  }
+}
+
+void setupWishlistInjection({Dio? dioInstance}) {
+  setupCoreInjection(dioInstance: dioInstance);
+
+  if (!sl.isRegistered<WishlistRemoteDataSource>()) {
+    sl.registerLazySingleton<WishlistRemoteDataSource>(
+      () => WishlistRemoteDataSourceImpl(dio: sl<Dio>()),
+    );
+  }
+
+  if (!sl.isRegistered<WishlistRepository>()) {
+    sl.registerLazySingleton<WishlistRepository>(
+      () => WishlistRepositoryImpl(
+        remoteDataSource: sl<WishlistRemoteDataSource>(),
+      ),
+    );
+  }
+}
+
 /// Root DI setup method calling core and feature setup.
 void setupInjection({
   ApiConfig? config,
@@ -247,4 +289,6 @@ void setupInjection({
   setupAnalyticsInjection(dioInstance: dioInstance);
   setupAuthInjection(dioInstance: dioInstance);
   setupCatalogInjection(dioInstance: dioInstance);
+  setupCartInjection(dioInstance: dioInstance);
+  setupWishlistInjection(dioInstance: dioInstance);
 }
