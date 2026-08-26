@@ -7,6 +7,10 @@ import '../config/api_config.dart';
 import '../network/auth_interceptor.dart';
 import '../storage/secure_storage_service.dart';
 
+import '../../features/auth/data/datasources/auth_remote_datasource.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+
 import '../../features/analytics/data/datasources/analytics_remote_datasource.dart';
 import '../../features/analytics/data/repositories/analytics_repository_impl.dart';
 import '../../features/analytics/data/services/analytics_csv_export_service.dart';
@@ -157,6 +161,24 @@ void setupAnalyticsInjection({Dio? dioInstance}) {
   }
 }
 
+void setupAuthInjection({Dio? dioInstance}) {
+  setupCoreInjection(dioInstance: dioInstance);
+
+  if (!sl.isRegistered<AuthRemoteDataSource>()) {
+    sl.registerLazySingleton<AuthRemoteDataSource>(
+      () => AuthRemoteDataSourceImpl(dio: sl<Dio>()),
+    );
+  }
+
+  if (!sl.isRegistered<AuthRepository>()) {
+    sl.registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(
+        remoteDataSource: sl<AuthRemoteDataSource>(),
+      ),
+    );
+  }
+}
+
 /// Root DI setup method calling core and feature setup.
 void setupInjection({
   ApiConfig? config,
@@ -170,5 +192,6 @@ void setupInjection({
     dioInstance: dioInstance,
     onSessionExpired: onSessionExpired,
   );
+  setupAuthInjection(dioInstance: dioInstance);
   setupAnalyticsInjection(dioInstance: dioInstance);
 }
