@@ -28,6 +28,8 @@ import '../../features/catalog/presentation/screens/home_screen.dart';
 import '../../features/catalog/presentation/screens/product_details_screen.dart';
 import '../../features/catalog/presentation/screens/product_list_screen.dart';
 
+import '../../features/business_dashboard/presentation/screens/merchant_dashboard_screen.dart';
+
 import '../auth/auth_role.dart';
 import '../di/injection.dart';
 
@@ -110,6 +112,29 @@ class AppRouter {
     return null;
   }
 
+  /// Route guard redirect logic for Business Dashboard & Merchant routes
+  static String? guardBusinessRoute({
+    required String location,
+    required bool isAuthenticated,
+    required AppRole? userRole,
+  }) {
+    if (location.startsWith('/business')) {
+      if (!isAuthenticated) {
+        return '/login';
+      }
+      if (userRole == AppRole.customer) {
+        return '/home';
+      }
+      if (!AuthRoleHelper.canAccessAnalytics(userRole)) {
+        return '/unauthorized';
+      }
+      if (location == '/business') {
+        return '/business/dashboard';
+      }
+    }
+    return null;
+  }
+
   /// Global authentication and navigation redirect logic
   static String? handleRedirect({
     required String location,
@@ -135,14 +160,26 @@ class AppRouter {
       return '/login';
     }
 
-    // 3. Authenticated user accessing auth routes -> /home
+    // 3. Authenticated user accessing auth routes -> /business/dashboard for Merchant, /home for Customer
     if (isAuthenticated && isAuthRoute) {
+      if (AuthRoleHelper.canAccessAnalytics(userRole)) {
+        return '/business/dashboard';
+      }
       return '/home';
     }
 
     // 4. Analytics role authorization check
     if (location.startsWith('/analytics')) {
       return guardAnalyticsRoute(
+        location: location,
+        isAuthenticated: isAuthenticated,
+        userRole: userRole,
+      );
+    }
+
+    // 5. Business role authorization check
+    if (location.startsWith('/business')) {
+      return guardBusinessRoute(
         location: location,
         isAuthenticated: isAuthenticated,
         userRole: userRole,
@@ -278,6 +315,18 @@ class AppRouter {
           builder: (context, state) => const Scaffold(
             body: Center(child: Text('Unauthorized: Access Denied')),
           ),
+        ),
+        GoRoute(
+          path: '/business',
+          redirect: (context, state) => '/business/dashboard',
+          routes: [
+            GoRoute(
+              path: 'dashboard',
+              builder: (context, state) => MerchantDashboardScreen(
+                onAnalyticsTap: () => context.push('/analytics'),
+              ),
+            ),
+          ],
         ),
         ...analyticsRoutes,
       ],
