@@ -30,9 +30,11 @@ import '../../features/catalog/presentation/bloc/product_list_cubit.dart';
 import '../../features/cart/data/datasources/cart_remote_datasource.dart';
 import '../../features/cart/data/repositories/cart_repository_impl.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
+import '../../features/cart/presentation/bloc/cart_cubit.dart';
 import '../../features/wishlist/data/datasources/wishlist_remote_datasource.dart';
 import '../../features/wishlist/data/repositories/wishlist_repository_impl.dart';
 import '../../features/wishlist/domain/repositories/wishlist_repository.dart';
+import '../../features/wishlist/presentation/bloc/wishlist_cubit.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -253,6 +255,12 @@ void setupCartInjection({Dio? dioInstance}) {
       ),
     );
   }
+
+  if (!sl.isRegistered<CartCubit>()) {
+    sl.registerFactory<CartCubit>(
+      () => CartCubit(repository: sl<CartRepository>()),
+    );
+  }
 }
 
 void setupWishlistInjection({Dio? dioInstance}) {
@@ -269,6 +277,12 @@ void setupWishlistInjection({Dio? dioInstance}) {
       () => WishlistRepositoryImpl(
         remoteDataSource: sl<WishlistRemoteDataSource>(),
       ),
+    );
+  }
+
+  if (!sl.isRegistered<WishlistCubit>()) {
+    sl.registerFactory<WishlistCubit>(
+      () => WishlistCubit(repository: sl<WishlistRepository>()),
     );
   }
 }
