@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:wovzo_mobile/features/analytics/data/models/brand_performance_model.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/category_performance_model.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/customer_analytics_model.dart';
+import 'package:wovzo_mobile/features/analytics/data/models/dashboard_summary_model.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/inventory_report_model.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/paged_result_model.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/product_performance_model.dart';
@@ -10,6 +11,12 @@ import 'package:wovzo_mobile/features/analytics/domain/repositories/analytics_re
 
 class MockAnalyticsRepository implements AnalyticsRepository {
   bool shouldThrowError = false;
+
+  @override
+  Future<DashboardSummaryModel> getDashboardSummary() async {
+    if (shouldThrowError) throw Exception('Failed to load dashboard');
+    return const DashboardSummaryModel();
+  }
 
   SalesReportModel? salesReportResult;
   PagedResult<ProductPerformanceModel>? productPerformanceResult;

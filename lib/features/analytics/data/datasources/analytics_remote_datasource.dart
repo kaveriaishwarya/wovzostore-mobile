@@ -7,8 +7,11 @@ import '../models/brand_performance_model.dart';
 import '../models/customer_analytics_model.dart';
 import '../models/inventory_report_model.dart';
 import '../models/paged_result_model.dart';
+import '../models/dashboard_summary_model.dart';
 
 abstract class AnalyticsRemoteDataSource {
+  Future<DashboardSummaryModel> getDashboardSummary();
+
   Future<SalesReportModel> getSalesReport({
     required String startDate,
     required String endDate,
@@ -104,6 +107,12 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
   AnalyticsRemoteDataSourceImpl({required this.dio});
 
   static const String basePath = '/api/v1/analytics/reports';
+
+  @override
+  Future<DashboardSummaryModel> getDashboardSummary() async {
+    final response = await dio.get('/api/v1/analytics/dashboard');
+    return DashboardSummaryModel.fromJson(response.data as Map<String, dynamic>);
+  }
 
   @override
   Future<SalesReportModel> getSalesReport({

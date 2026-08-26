@@ -8,11 +8,17 @@ import '../models/brand_performance_model.dart';
 import '../models/customer_analytics_model.dart';
 import '../models/inventory_report_model.dart';
 import '../models/paged_result_model.dart';
+import '../models/dashboard_summary_model.dart';
 
 class AnalyticsRepositoryImpl implements AnalyticsRepository {
   final AnalyticsRemoteDataSource remoteDataSource;
 
   AnalyticsRepositoryImpl({required this.remoteDataSource});
+
+  @override
+  Future<DashboardSummaryModel> getDashboardSummary() {
+    return remoteDataSource.getDashboardSummary();
+  }
 
   @override
   Future<SalesReportModel> getSalesReport({

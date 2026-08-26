@@ -4,6 +4,7 @@ import 'package:wovzo_mobile/features/analytics/data/datasources/analytics_remot
 import 'package:wovzo_mobile/features/analytics/data/models/brand_performance_model.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/category_performance_model.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/customer_analytics_model.dart';
+import 'package:wovzo_mobile/features/analytics/data/models/dashboard_summary_model.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/inventory_report_model.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/paged_result_model.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/product_performance_model.dart';
@@ -12,6 +13,9 @@ import 'package:wovzo_mobile/features/analytics/data/repositories/analytics_repo
 
 class _MockAnalyticsRemoteDataSource implements AnalyticsRemoteDataSource {
   bool getSalesReportCalled = false;
+
+  @override
+  Future<DashboardSummaryModel> getDashboardSummary() async => const DashboardSummaryModel();
   bool getProductPerformanceCalled = false;
   bool getCategoryPerformanceCalled = false;
   bool getBrandPerformanceCalled = false;

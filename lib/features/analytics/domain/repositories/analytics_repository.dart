@@ -6,8 +6,11 @@ import '../../data/models/brand_performance_model.dart';
 import '../../data/models/customer_analytics_model.dart';
 import '../../data/models/inventory_report_model.dart';
 import '../../data/models/paged_result_model.dart';
+import '../../data/models/dashboard_summary_model.dart';
 
 abstract class AnalyticsRepository {
+  Future<DashboardSummaryModel> getDashboardSummary();
+
   Future<SalesReportModel> getSalesReport({
     required String startDate,
     required String endDate,

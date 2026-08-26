@@ -21,6 +21,7 @@ import '../../features/analytics/presentation/bloc/product_performance_cubit.dar
 import '../../features/analytics/presentation/bloc/category_brand_cubit.dart';
 import '../../features/analytics/presentation/bloc/customer_analytics_cubit.dart';
 import '../../features/analytics/presentation/bloc/inventory_report_cubit.dart';
+import '../../features/business_dashboard/presentation/bloc/merchant_dashboard_cubit.dart';
 import '../../features/catalog/data/datasources/catalog_remote_datasource.dart';
 import '../../features/catalog/data/repositories/catalog_repository_impl.dart';
 import '../../features/catalog/domain/repositories/catalog_repository.dart';
@@ -172,6 +173,12 @@ void setupAnalyticsInjection({Dio? dioInstance}) {
   if (!sl.isRegistered<InventoryReportCubit>()) {
     sl.registerFactory<InventoryReportCubit>(
       () => InventoryReportCubit(repository: sl<AnalyticsRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantDashboardCubit>()) {
+    sl.registerFactory<MerchantDashboardCubit>(
+      () => MerchantDashboardCubit(repository: sl<AnalyticsRepository>()),
     );
   }
 }
