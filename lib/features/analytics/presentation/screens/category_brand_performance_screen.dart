@@ -238,7 +238,7 @@ class _CategoryBrandPerformanceScreenState
           borderRadius: BorderRadius.circular(6),
           boxShadow: isSelected
               ? [
-                  BoxStyle(
+                  BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 4,
                     offset: const Offset(0, 1),

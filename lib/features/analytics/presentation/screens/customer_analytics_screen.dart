@@ -170,7 +170,7 @@ class _CustomerAnalyticsScreenState extends State<CustomerAnalyticsScreen> {
                           physics: const NeverScrollableScrollPhysics(),
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
-                          childAspectRatio: isTablet ? 1.4 : 1.3,
+                          childAspectRatio: isTablet ? 1.4 : 1.15,
                           children: [
                             AnalyticsKpiCard(
                               title: 'Total Customers',

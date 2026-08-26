@@ -70,7 +70,7 @@ class SalesTrendChart extends StatelessWidget {
                   children: [
                     _buildLegendItem('Gross', Colors.blue.shade600),
                     const SizedBox(width: 12),
-                    _buildLegendItem('Net', Colors.emeraldAccent.shade700 ?? Colors.teal),
+                    _buildLegendItem('Net', Colors.teal.shade700),
                   ],
                 ),
               ],
