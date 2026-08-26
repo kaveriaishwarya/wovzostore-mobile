@@ -24,6 +24,9 @@ import '../../features/analytics/presentation/bloc/inventory_report_cubit.dart';
 import '../../features/catalog/data/datasources/catalog_remote_datasource.dart';
 import '../../features/catalog/data/repositories/catalog_repository_impl.dart';
 import '../../features/catalog/domain/repositories/catalog_repository.dart';
+import '../../features/catalog/presentation/bloc/catalog_cubit.dart';
+import '../../features/catalog/presentation/bloc/product_details_cubit.dart';
+import '../../features/catalog/presentation/bloc/product_list_cubit.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -206,6 +209,24 @@ void setupCatalogInjection({Dio? dioInstance}) {
       () => CatalogRepositoryImpl(
         remoteDataSource: sl<CatalogRemoteDataSource>(),
       ),
+    );
+  }
+
+  if (!sl.isRegistered<CatalogCubit>()) {
+    sl.registerFactory<CatalogCubit>(
+      () => CatalogCubit(repository: sl<CatalogRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<ProductListCubit>()) {
+    sl.registerFactory<ProductListCubit>(
+      () => ProductListCubit(repository: sl<CatalogRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<ProductDetailsCubit>()) {
+    sl.registerFactory<ProductDetailsCubit>(
+      () => ProductDetailsCubit(repository: sl<CatalogRepository>()),
     );
   }
 }
