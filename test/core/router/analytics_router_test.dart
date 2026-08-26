@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wovzo_mobile/core/auth/auth_role.dart';
+import 'package:wovzo_mobile/core/di/injection.dart';
 import 'package:wovzo_mobile/core/router/app_router.dart';
 
 void main() {
+  setUp(() {
+    setupInjection();
+  });
+
   group('Analytics Route Guard & Routing Tests', () {
     test('unauthenticated user is redirected to /login', () {
       final redirect = AppRouter.guardAnalyticsRoute(
@@ -73,7 +78,7 @@ void main() {
       await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await tester.pumpAndSettle();
 
-      expect(find.text('Login Screen'), findsOneWidget);
+      expect(find.text('Welcome to Wovzo'), findsOneWidget);
     });
   });
 }

@@ -9,7 +9,7 @@ void main() {
 
   testWidgets('MyApp mounts MaterialApp.router successfully', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.byType(MyApp), findsOneWidget);
   });

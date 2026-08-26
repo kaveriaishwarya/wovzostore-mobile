@@ -10,6 +10,7 @@ import '../storage/secure_storage_service.dart';
 import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/presentation/bloc/auth_cubit.dart';
 
 import '../../features/analytics/data/datasources/analytics_remote_datasource.dart';
 import '../../features/analytics/data/repositories/analytics_repository_impl.dart';
@@ -174,6 +175,15 @@ void setupAuthInjection({Dio? dioInstance}) {
     sl.registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(
         remoteDataSource: sl<AuthRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<AuthCubit>()) {
+    sl.registerLazySingleton<AuthCubit>(
+      () => AuthCubit(
+        repository: sl<AuthRepository>(),
+        secureStorage: sl<SecureStorageService>(),
       ),
     );
   }
