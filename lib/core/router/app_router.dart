@@ -19,7 +19,14 @@ import '../../features/auth/presentation/bloc/auth_cubit.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
-import '../../features/home/presentation/screens/home_placeholder_screen.dart';
+
+import '../../features/catalog/presentation/bloc/catalog_cubit.dart';
+import '../../features/catalog/presentation/bloc/product_details_cubit.dart';
+import '../../features/catalog/presentation/bloc/product_list_cubit.dart';
+import '../../features/catalog/presentation/screens/categories_screen.dart';
+import '../../features/catalog/presentation/screens/home_screen.dart';
+import '../../features/catalog/presentation/screens/product_details_screen.dart';
+import '../../features/catalog/presentation/screens/product_list_screen.dart';
 
 import '../auth/auth_role.dart';
 import '../di/injection.dart';
@@ -196,7 +203,75 @@ class AppRouter {
         ),
         GoRoute(
           path: '/home',
-          builder: (context, state) => const HomePlaceholderScreen(),
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<CatalogCubit>(),
+            child: HomeScreen(
+              onCategoryTap: (categoryId) {
+                context.go('/products?categoryId=$categoryId');
+              },
+              onSearchTap: () {
+                context.go('/products');
+              },
+              onProductTap: (productId) {
+                context.push('/products/$productId');
+              },
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/categories',
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<CatalogCubit>(),
+            child: CategoriesScreen(
+              onCategoryTap: (categoryId, categoryName) {
+                context.go('/products?categoryId=$categoryId&categoryName=${Uri.encodeComponent(categoryName)}');
+              },
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/products',
+          builder: (context, state) {
+            final categoryId = state.uri.queryParameters['categoryId'];
+            final categoryName = state.uri.queryParameters['categoryName'];
+            final brandId = state.uri.queryParameters['brandId'];
+            final search = state.uri.queryParameters['search'];
+
+            return BlocProvider(
+              create: (_) => sl<ProductListCubit>(),
+              child: ProductListScreen(
+                categoryId: categoryId,
+                categoryName: categoryName,
+                brandId: brandId,
+                searchQuery: search,
+                onProductTap: (productId) {
+                  context.push('/products/$productId');
+                },
+              ),
+            );
+          },
+          routes: [
+            GoRoute(
+              path: 'slug/:slug',
+              builder: (context, state) {
+                final slug = state.pathParameters['slug'];
+                return BlocProvider(
+                  create: (_) => sl<ProductDetailsCubit>(),
+                  child: ProductDetailsScreen(productSlug: slug),
+                );
+              },
+            ),
+            GoRoute(
+              path: ':id',
+              builder: (context, state) {
+                final id = state.pathParameters['id'];
+                return BlocProvider(
+                  create: (_) => sl<ProductDetailsCubit>(),
+                  child: ProductDetailsScreen(productId: id),
+                );
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: '/unauthorized',

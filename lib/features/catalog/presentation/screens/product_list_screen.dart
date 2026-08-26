@@ -8,6 +8,7 @@ class ProductListScreen extends StatefulWidget {
   final String? categoryId;
   final String? categoryName;
   final String? brandId;
+  final String? searchQuery;
   final void Function(String productId)? onProductTap;
 
   const ProductListScreen({
@@ -15,6 +16,7 @@ class ProductListScreen extends StatefulWidget {
     this.categoryId,
     this.categoryName,
     this.brandId,
+    this.searchQuery,
     this.onProductTap,
   });
 
@@ -24,15 +26,17 @@ class ProductListScreen extends StatefulWidget {
 
 class _ProductListScreenState extends State<ProductListScreen> {
   final _scrollController = ScrollController();
-  final _searchController = TextEditingController();
+  late final TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
+    _searchController = TextEditingController(text: widget.searchQuery ?? '');
     _scrollController.addListener(_onScroll);
     context.read<ProductListCubit>().loadProducts(
           categoryId: widget.categoryId,
           brandId: widget.brandId,
+          search: widget.searchQuery,
         );
   }
 
