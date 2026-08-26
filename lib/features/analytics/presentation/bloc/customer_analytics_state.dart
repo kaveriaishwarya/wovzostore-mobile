@@ -10,6 +10,7 @@ class CustomerAnalyticsState {
   final int pageSize;
   final String sortBy;
   final String sortDirection;
+  final bool isExporting;
   final String? errorMessage;
 
   const CustomerAnalyticsState({
@@ -21,6 +22,7 @@ class CustomerAnalyticsState {
     this.pageSize = 20,
     this.sortBy = 'revenue',
     this.sortDirection = 'desc',
+    this.isExporting = false,
     this.errorMessage,
   });
 
@@ -33,6 +35,7 @@ class CustomerAnalyticsState {
     int? pageSize,
     String? sortBy,
     String? sortDirection,
+    bool? isExporting,
     String? errorMessage,
   }) {
     return CustomerAnalyticsState(
@@ -44,6 +47,7 @@ class CustomerAnalyticsState {
       pageSize: pageSize ?? this.pageSize,
       sortBy: sortBy ?? this.sortBy,
       sortDirection: sortDirection ?? this.sortDirection,
+      isExporting: isExporting ?? this.isExporting,
       errorMessage: errorMessage,
     );
   }

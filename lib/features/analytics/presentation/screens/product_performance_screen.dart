@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/product_performance_model.dart';
+import '../../data/services/analytics_csv_export_service.dart';
 import '../bloc/analytics_status.dart';
 import '../bloc/product_performance_cubit.dart';
 import '../bloc/product_performance_state.dart';
@@ -34,6 +35,31 @@ class _ProductPerformanceScreenState extends State<ProductPerformanceScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         actions: [
+          BlocBuilder<ProductPerformanceCubit, ProductPerformanceState>(
+            builder: (context, state) {
+              if (state.isExporting) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14.0),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                );
+              }
+              return IconButton(
+                icon: const Icon(Icons.share_outlined),
+                onPressed: () {
+                  context
+                      .read<ProductPerformanceCubit>()
+                      .exportReport(AnalyticsCsvExportServiceImpl());
+                },
+                tooltip: 'Export CSV',
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => context.read<ProductPerformanceCubit>().reload(),

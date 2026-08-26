@@ -57,5 +57,23 @@ class InventoryReportCubit extends Cubit<InventoryReportState> {
     loadReport();
   }
 
+  Future<void> exportReport(dynamic exportService) async {
+    if (state.isExporting) return;
+    emit(state.copyWith(isExporting: true));
+    try {
+      final bytes = await repository.exportInventoryReport(
+        lowStockOnly: state.lowStockOnly,
+        categoryId: state.categoryId,
+        sortBy: state.sortBy,
+        sortDirection: state.sortDirection,
+      );
+      final fileName = exportService.generateInventoryFileName();
+      final filePath = await exportService.saveCsvFile(bytes: bytes, fileName: fileName);
+      await exportService.shareCsvFile(filePath: filePath, title: 'Export Inventory Report');
+    } finally {
+      emit(state.copyWith(isExporting: false));
+    }
+  }
+
   void reload() => loadReport();
 }

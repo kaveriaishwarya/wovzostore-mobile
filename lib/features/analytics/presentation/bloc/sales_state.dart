@@ -9,6 +9,7 @@ class SalesState {
   final int? interval;
   final int? orderStatus;
   final int? paymentMethod;
+  final bool isExporting;
   final String? errorMessage;
 
   const SalesState({
@@ -19,6 +20,7 @@ class SalesState {
     this.interval = 0, // Daily default
     this.orderStatus,
     this.paymentMethod,
+    this.isExporting = false,
     this.errorMessage,
   });
 
@@ -30,6 +32,7 @@ class SalesState {
     int? interval,
     int? orderStatus,
     int? paymentMethod,
+    bool? isExporting,
     String? errorMessage,
   }) {
     return SalesState(
@@ -40,6 +43,7 @@ class SalesState {
       interval: interval ?? this.interval,
       orderStatus: orderStatus ?? this.orderStatus,
       paymentMethod: paymentMethod ?? this.paymentMethod,
+      isExporting: isExporting ?? this.isExporting,
       errorMessage: errorMessage,
     );
   }

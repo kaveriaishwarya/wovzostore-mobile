@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/inventory_report_model.dart';
+import '../../data/services/analytics_csv_export_service.dart';
 import '../bloc/analytics_status.dart';
 import '../bloc/inventory_report_cubit.dart';
 import '../bloc/inventory_report_state.dart';
@@ -34,6 +35,31 @@ class _InventoryReportScreenState extends State<InventoryReportScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         actions: [
+          BlocBuilder<InventoryReportCubit, InventoryReportState>(
+            builder: (context, state) {
+              if (state.isExporting) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14.0),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                );
+              }
+              return IconButton(
+                icon: const Icon(Icons.share_outlined),
+                onPressed: () {
+                  context
+                      .read<InventoryReportCubit>()
+                      .exportReport(AnalyticsCsvExportServiceImpl());
+                },
+                tooltip: 'Export CSV',
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => context.read<InventoryReportCubit>().reload(),

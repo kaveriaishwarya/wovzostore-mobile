@@ -68,5 +68,23 @@ class CustomerAnalyticsCubit extends Cubit<CustomerAnalyticsState> {
     loadReport();
   }
 
+  Future<void> exportReport(dynamic exportService) async {
+    if (state.isExporting) return;
+    emit(state.copyWith(isExporting: true));
+    try {
+      final bytes = await repository.exportCustomerAnalyticsReport(
+        startDate: state.startDate,
+        endDate: state.endDate,
+        sortBy: state.sortBy,
+        sortDirection: state.sortDirection,
+      );
+      final fileName = exportService.generateCustomerFileName(state.startDate, state.endDate);
+      final filePath = await exportService.saveCsvFile(bytes: bytes, fileName: fileName);
+      await exportService.shareCsvFile(filePath: filePath, title: 'Export Customer Analytics');
+    } finally {
+      emit(state.copyWith(isExporting: false));
+    }
+  }
+
   void reload() => loadReport();
 }

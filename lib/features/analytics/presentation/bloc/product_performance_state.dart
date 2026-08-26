@@ -13,6 +13,7 @@ class ProductPerformanceState {
   final int pageSize;
   final String sortBy;
   final String sortDirection;
+  final bool isExporting;
   final String? errorMessage;
 
   const ProductPerformanceState({
@@ -26,6 +27,7 @@ class ProductPerformanceState {
     this.pageSize = 20,
     this.sortBy = 'revenue',
     this.sortDirection = 'desc',
+    this.isExporting = false,
     this.errorMessage,
   });
 
@@ -42,6 +44,7 @@ class ProductPerformanceState {
     int? pageSize,
     String? sortBy,
     String? sortDirection,
+    bool? isExporting,
     String? errorMessage,
   }) {
     return ProductPerformanceState(
@@ -55,6 +58,7 @@ class ProductPerformanceState {
       pageSize: pageSize ?? this.pageSize,
       sortBy: sortBy ?? this.sortBy,
       sortDirection: sortDirection ?? this.sortDirection,
+      isExporting: isExporting ?? this.isExporting,
       errorMessage: errorMessage,
     );
   }

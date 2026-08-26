@@ -10,6 +10,7 @@ class InventoryReportState {
   final int pageSize;
   final String sortBy;
   final String sortDirection;
+  final bool isExporting;
   final String? errorMessage;
 
   const InventoryReportState({
@@ -21,6 +22,7 @@ class InventoryReportState {
     this.pageSize = 20,
     this.sortBy = 'stock',
     this.sortDirection = 'asc',
+    this.isExporting = false,
     this.errorMessage,
   });
 
@@ -34,6 +36,7 @@ class InventoryReportState {
     int? pageSize,
     String? sortBy,
     String? sortDirection,
+    bool? isExporting,
     String? errorMessage,
   }) {
     return InventoryReportState(
@@ -45,6 +48,7 @@ class InventoryReportState {
       pageSize: pageSize ?? this.pageSize,
       sortBy: sortBy ?? this.sortBy,
       sortDirection: sortDirection ?? this.sortDirection,
+      isExporting: isExporting ?? this.isExporting,
       errorMessage: errorMessage,
     );
   }

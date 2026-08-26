@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/brand_performance_model.dart';
 import '../../data/models/category_performance_model.dart';
+import '../../data/services/analytics_csv_export_service.dart';
 import '../bloc/analytics_status.dart';
 import '../bloc/category_brand_cubit.dart';
 import '../bloc/category_brand_state.dart';
@@ -39,6 +40,40 @@ class _CategoryBrandPerformanceScreenState
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         actions: [
+          BlocBuilder<CategoryBrandCubit, CategoryBrandState>(
+            builder: (context, state) {
+              if (state.isExporting) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14.0),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                );
+              }
+              return IconButton(
+                icon: const Icon(Icons.share_outlined),
+                onPressed: () {
+                  final service = AnalyticsCsvExportServiceImpl();
+                  if (_selectedTabIndex == 0) {
+                    context
+                        .read<CategoryBrandCubit>()
+                        .exportCategoryReport(service);
+                  } else {
+                    context
+                        .read<CategoryBrandCubit>()
+                        .exportBrandReport(service);
+                  }
+                },
+                tooltip: _selectedTabIndex == 0
+                    ? 'Export Category CSV'
+                    : 'Export Brand CSV',
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => context.read<CategoryBrandCubit>().reload(),

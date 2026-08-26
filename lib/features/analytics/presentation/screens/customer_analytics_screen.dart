@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/customer_analytics_model.dart';
+import '../../data/services/analytics_csv_export_service.dart';
 import '../bloc/analytics_status.dart';
 import '../bloc/customer_analytics_cubit.dart';
 import '../bloc/customer_analytics_state.dart';
@@ -36,6 +37,31 @@ class _CustomerAnalyticsScreenState extends State<CustomerAnalyticsScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         actions: [
+          BlocBuilder<CustomerAnalyticsCubit, CustomerAnalyticsState>(
+            builder: (context, state) {
+              if (state.isExporting) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14.0),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                );
+              }
+              return IconButton(
+                icon: const Icon(Icons.share_outlined),
+                onPressed: () {
+                  context
+                      .read<CustomerAnalyticsCubit>()
+                      .exportReport(AnalyticsCsvExportServiceImpl());
+                },
+                tooltip: 'Export CSV',
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => context.read<CustomerAnalyticsCubit>().reload(),

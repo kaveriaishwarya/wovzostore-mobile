@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../data/services/analytics_csv_export_service.dart';
 import '../bloc/analytics_status.dart';
 import '../bloc/sales_cubit.dart';
 import '../bloc/sales_state.dart';
@@ -36,6 +37,31 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         actions: [
+          BlocBuilder<SalesCubit, SalesState>(
+            builder: (context, state) {
+              if (state.isExporting) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14.0),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                );
+              }
+              return IconButton(
+                icon: const Icon(Icons.share_outlined),
+                onPressed: () {
+                  context
+                      .read<SalesCubit>()
+                      .exportReport(AnalyticsCsvExportServiceImpl());
+                },
+                tooltip: 'Export CSV',
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => context.read<SalesCubit>().reload(),

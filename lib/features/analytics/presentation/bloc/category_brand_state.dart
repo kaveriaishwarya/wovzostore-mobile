@@ -8,6 +8,7 @@ class CategoryBrandState {
   final List<BrandPerformanceModel> brands;
   final String startDate;
   final String endDate;
+  final bool isExporting;
   final String? errorMessage;
 
   const CategoryBrandState({
@@ -16,6 +17,7 @@ class CategoryBrandState {
     this.brands = const [],
     required this.startDate,
     required this.endDate,
+    this.isExporting = false,
     this.errorMessage,
   });
 
@@ -25,6 +27,7 @@ class CategoryBrandState {
     List<BrandPerformanceModel>? brands,
     String? startDate,
     String? endDate,
+    bool? isExporting,
     String? errorMessage,
   }) {
     return CategoryBrandState(
@@ -33,6 +36,7 @@ class CategoryBrandState {
       brands: brands ?? this.brands,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      isExporting: isExporting ?? this.isExporting,
       errorMessage: errorMessage,
     );
   }

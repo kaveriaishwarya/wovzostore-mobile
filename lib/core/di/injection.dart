@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import '../../features/analytics/data/datasources/analytics_remote_datasource.dart';
 import '../../features/analytics/data/repositories/analytics_repository_impl.dart';
+import '../../features/analytics/data/services/analytics_csv_export_service.dart';
 import '../../features/analytics/domain/repositories/analytics_repository.dart';
 import '../../features/analytics/presentation/bloc/sales_cubit.dart';
 import '../../features/analytics/presentation/bloc/product_performance_cubit.dart';
@@ -44,6 +45,13 @@ void setupAnalyticsInjection({Dio? dioInstance}) {
       () => AnalyticsRepositoryImpl(
         remoteDataSource: sl<AnalyticsRemoteDataSource>(),
       ),
+    );
+  }
+
+  // Register Analytics CSV Export Service
+  if (!sl.isRegistered<AnalyticsCsvExportService>()) {
+    sl.registerLazySingleton<AnalyticsCsvExportService>(
+      () => AnalyticsCsvExportServiceImpl(),
     );
   }
 

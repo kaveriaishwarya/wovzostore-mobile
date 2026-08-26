@@ -81,5 +81,25 @@ class ProductPerformanceCubit extends Cubit<ProductPerformanceState> {
     loadReport();
   }
 
+  Future<void> exportReport(dynamic exportService) async {
+    if (state.isExporting) return;
+    emit(state.copyWith(isExporting: true));
+    try {
+      final bytes = await repository.exportProductPerformanceReport(
+        startDate: state.startDate,
+        endDate: state.endDate,
+        categoryId: state.categoryId,
+        brandId: state.brandId,
+        sortBy: state.sortBy,
+        sortDirection: state.sortDirection,
+      );
+      final fileName = exportService.generateProductFileName(state.startDate, state.endDate);
+      final filePath = await exportService.saveCsvFile(bytes: bytes, fileName: fileName);
+      await exportService.shareCsvFile(filePath: filePath, title: 'Export Product Performance');
+    } finally {
+      emit(state.copyWith(isExporting: false));
+    }
+  }
+
   void reload() => loadReport();
 }

@@ -57,5 +57,37 @@ class CategoryBrandCubit extends Cubit<CategoryBrandState> {
     loadReport();
   }
 
+  Future<void> exportCategoryReport(dynamic exportService) async {
+    if (state.isExporting) return;
+    emit(state.copyWith(isExporting: true));
+    try {
+      final bytes = await repository.exportCategoryPerformanceReport(
+        startDate: state.startDate,
+        endDate: state.endDate,
+      );
+      final fileName = exportService.generateCategoryFileName(state.startDate, state.endDate);
+      final filePath = await exportService.saveCsvFile(bytes: bytes, fileName: fileName);
+      await exportService.shareCsvFile(filePath: filePath, title: 'Export Category Performance');
+    } finally {
+      emit(state.copyWith(isExporting: false));
+    }
+  }
+
+  Future<void> exportBrandReport(dynamic exportService) async {
+    if (state.isExporting) return;
+    emit(state.copyWith(isExporting: true));
+    try {
+      final bytes = await repository.exportBrandPerformanceReport(
+        startDate: state.startDate,
+        endDate: state.endDate,
+      );
+      final fileName = exportService.generateBrandFileName(state.startDate, state.endDate);
+      final filePath = await exportService.saveCsvFile(bytes: bytes, fileName: fileName);
+      await exportService.shareCsvFile(filePath: filePath, title: 'Export Brand Performance');
+    } finally {
+      emit(state.copyWith(isExporting: false));
+    }
+  }
+
   void reload() => loadReport();
 }
