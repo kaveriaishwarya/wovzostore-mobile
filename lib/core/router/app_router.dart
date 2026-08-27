@@ -31,6 +31,8 @@ import '../../features/catalog/presentation/screens/product_list_screen.dart';
 import '../../features/business_dashboard/presentation/screens/merchant_dashboard_screen.dart';
 import '../../features/merchant_products/presentation/screens/merchant_product_form_screen.dart';
 import '../../features/merchant_products/presentation/screens/merchant_product_list_screen.dart';
+import '../../features/merchant_orders/presentation/screens/merchant_order_detail_screen.dart';
+import '../../features/merchant_orders/presentation/screens/merchant_order_list_screen.dart';
 
 import '../auth/auth_role.dart';
 import '../di/injection.dart';
@@ -327,6 +329,7 @@ class AppRouter {
               builder: (context, state) => MerchantDashboardScreen(
                 onAnalyticsTap: () => context.push('/analytics'),
                 onProductsTap: () => context.push('/business/products'),
+                onOrdersTap: () => context.push('/business/orders'),
               ),
             ),
             GoRoute(
@@ -343,6 +346,21 @@ class AppRouter {
                 GoRoute(
                   path: ':id/edit',
                   builder: (context, state) => const MerchantProductFormScreen(),
+                ),
+              ],
+            ),
+            GoRoute(
+              path: 'orders',
+              builder: (context, state) => MerchantOrderListScreen(
+                onOrderTap: (id) => context.push('/business/orders/$id'),
+              ),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) {
+                    final orderId = state.pathParameters['id']!;
+                    return MerchantOrderDetailScreen(orderId: orderId);
+                  },
                 ),
               ],
             ),
