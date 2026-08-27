@@ -36,6 +36,7 @@ import '../../features/merchant_orders/presentation/screens/merchant_order_list_
 import '../../features/pos/presentation/screens/pos_screen.dart';
 import '../../features/merchant_customers/presentation/screens/merchant_customer_detail_screen.dart';
 import '../../features/merchant_customers/presentation/screens/merchant_customer_list_screen.dart';
+import '../../features/merchant_settings/presentation/screens/merchant_settings_screen.dart';
 
 import '../auth/auth_role.dart';
 import '../di/injection.dart';
@@ -134,6 +135,11 @@ class AppRouter {
       }
       if (!AuthRoleHelper.canAccessAnalytics(userRole)) {
         return '/unauthorized';
+      }
+      if (location.startsWith('/business/settings')) {
+        if (!AuthRoleHelper.canAccessSettings(userRole)) {
+          return '/unauthorized';
+        }
       }
       if (location == '/business') {
         return '/business/dashboard';
@@ -325,7 +331,7 @@ class AppRouter {
         ),
         GoRoute(
           path: '/business',
-          redirect: (context, state) => '/business/dashboard',
+          redirect: (context, state) => state.uri.path == '/business' ? '/business/dashboard' : null,
           routes: [
             GoRoute(
               path: 'dashboard',
@@ -335,7 +341,12 @@ class AppRouter {
                 onOrdersTap: () => context.push('/business/orders'),
                 onPosTap: () => context.push('/business/pos'),
                 onCustomersTap: () => context.push('/business/customers'),
+                onSettingsTap: () => context.push('/business/settings'),
               ),
+            ),
+            GoRoute(
+              path: 'settings',
+              builder: (context, state) => const MerchantSettingsScreen(),
             ),
             GoRoute(
               path: 'customers',

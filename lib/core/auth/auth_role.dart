@@ -13,10 +13,21 @@ class AuthRoleHelper {
     AppRole.superAdmin,
   };
 
+  static const allowedSettingsRoles = {
+    AppRole.admin,
+    AppRole.superAdmin,
+  };
+
   /// Returns true if the provided role is authorized to view Analytics reports.
   static bool canAccessAnalytics(AppRole? role) {
     if (role == null) return false;
     return allowedAnalyticsRoles.contains(role);
+  }
+
+  /// Returns true if the provided role is authorized to view/edit Store Settings.
+  static bool canAccessSettings(AppRole? role) {
+    if (role == null) return false;
+    return allowedSettingsRoles.contains(role);
   }
 
   /// Parses role string from JWT claims.

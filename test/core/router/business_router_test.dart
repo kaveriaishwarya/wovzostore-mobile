@@ -15,6 +15,10 @@ import 'package:wovzo_mobile/features/analytics/data/models/sales_report_model.d
 import 'package:wovzo_mobile/features/analytics/domain/repositories/analytics_repository.dart';
 import 'package:wovzo_mobile/features/business_dashboard/presentation/bloc/merchant_dashboard_cubit.dart';
 import 'package:wovzo_mobile/features/business_dashboard/presentation/screens/merchant_dashboard_screen.dart';
+import 'package:wovzo_mobile/features/merchant_settings/data/models/store_settings_model.dart';
+import 'package:wovzo_mobile/features/merchant_settings/domain/repositories/merchant_settings_repository.dart';
+import 'package:wovzo_mobile/features/merchant_settings/presentation/cubit/merchant_settings_cubit.dart';
+import 'package:wovzo_mobile/features/merchant_settings/presentation/screens/merchant_settings_screen.dart';
 
 class DummyAnalyticsRepository implements AnalyticsRepository {
   @override
@@ -57,6 +61,25 @@ class DummyAnalyticsRepository implements AnalyticsRepository {
   Future<Uint8List> exportInventoryReport({bool lowStockOnly = false, String? categoryId, String? sortBy, String? sortDirection}) => throw UnimplementedError();
 }
 
+class DummyMerchantSettingsRepository implements MerchantSettingsRepository {
+  @override
+  Future<StoreSettingsModel> getStoreSettings() async => StoreSettingsModel(
+        storeName: 'Test Store',
+        codEnabled: true,
+        minOrderAmountForCod: 0,
+        defaultCurrency: 'INR',
+        flatDeliveryCharge: 0,
+        estimatedDeliveryDays: 0,
+        returnWindowDays: 0,
+        replaceWindowDays: 0,
+        returnAllowed: true,
+        createdAt: DateTime.now(),
+      );
+
+  @override
+  Future<StoreSettingsModel> updateStoreSettings(StoreSettingsModel settings) async => settings;
+}
+
 void main() {
   final sl = GetIt.instance;
 
@@ -64,6 +87,8 @@ void main() {
     await sl.reset();
     sl.registerLazySingleton<AnalyticsRepository>(() => DummyAnalyticsRepository());
     sl.registerFactory<MerchantDashboardCubit>(() => MerchantDashboardCubit(repository: sl<AnalyticsRepository>()));
+    sl.registerLazySingleton<MerchantSettingsRepository>(() => DummyMerchantSettingsRepository());
+    sl.registerFactory<MerchantSettingsCubit>(() => MerchantSettingsCubit(repository: sl<MerchantSettingsRepository>()));
   });
 
   tearDown(() async {
@@ -112,6 +137,58 @@ void main() {
       expect(managerRedirect, isNull);
     });
 
+    test('Settings route (/business/settings) role authorization guards', () {
+      // Unauthenticated -> /login
+      expect(
+        AppRouter.guardBusinessRoute(
+          location: '/business/settings',
+          isAuthenticated: false,
+          userRole: null,
+        ),
+        '/login',
+      );
+
+      // Customer -> /home
+      expect(
+        AppRouter.guardBusinessRoute(
+          location: '/business/settings',
+          isAuthenticated: true,
+          userRole: AppRole.customer,
+        ),
+        '/home',
+      );
+
+      // StoreManager -> /unauthorized (DENIED)
+      expect(
+        AppRouter.guardBusinessRoute(
+          location: '/business/settings',
+          isAuthenticated: true,
+          userRole: AppRole.storeManager,
+        ),
+        '/unauthorized',
+      );
+
+      // Admin -> ALLOW (null)
+      expect(
+        AppRouter.guardBusinessRoute(
+          location: '/business/settings',
+          isAuthenticated: true,
+          userRole: AppRole.admin,
+        ),
+        isNull,
+      );
+
+      // SuperAdmin -> ALLOW (null)
+      expect(
+        AppRouter.guardBusinessRoute(
+          location: '/business/settings',
+          isAuthenticated: true,
+          userRole: AppRole.superAdmin,
+        ),
+        isNull,
+      );
+    });
+
     testWidgets('authenticated merchant accessing /business/dashboard renders MerchantDashboardScreen', (tester) async {
       final router = AppRouter.createRouter(
         initialLocation: '/business/dashboard',
@@ -123,6 +200,19 @@ void main() {
       await tester.pump();
 
       expect(find.byType(MerchantDashboardScreen), findsOneWidget);
+    });
+
+    testWidgets('authenticated admin accessing /business/settings renders MerchantSettingsScreen', (tester) async {
+      final router = AppRouter.createRouter(
+        initialLocation: '/business/settings',
+        isAuthenticated: true,
+        userRole: AppRole.admin,
+      );
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MerchantSettingsScreen), findsOneWidget);
     });
   });
 }

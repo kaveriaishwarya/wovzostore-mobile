@@ -15,6 +15,7 @@ class MerchantDashboardScreen extends StatelessWidget {
   final VoidCallback? onInventoryTap;
   final VoidCallback? onCustomersTap;
   final VoidCallback? onAnalyticsTap;
+  final VoidCallback? onSettingsTap;
 
   const MerchantDashboardScreen({
     super.key,
@@ -25,6 +26,7 @@ class MerchantDashboardScreen extends StatelessWidget {
     this.onInventoryTap,
     this.onCustomersTap,
     this.onAnalyticsTap,
+    this.onSettingsTap,
   });
 
   @override
@@ -154,6 +156,7 @@ class MerchantDashboardScreen extends StatelessWidget {
                       onInventoryTap: onInventoryTap,
                       onCustomersTap: onCustomersTap,
                       onAnalyticsTap: onAnalyticsTap,
+                      onSettingsTap: onSettingsTap,
                     ),
                   ],
                 ),

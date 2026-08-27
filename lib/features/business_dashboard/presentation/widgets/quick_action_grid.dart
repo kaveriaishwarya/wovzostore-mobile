@@ -7,6 +7,7 @@ class QuickActionGrid extends StatelessWidget {
   final VoidCallback? onInventoryTap;
   final VoidCallback? onCustomersTap;
   final VoidCallback? onAnalyticsTap;
+  final VoidCallback? onSettingsTap;
 
   const QuickActionGrid({
     super.key,
@@ -16,6 +17,7 @@ class QuickActionGrid extends StatelessWidget {
     this.onInventoryTap,
     this.onCustomersTap,
     this.onAnalyticsTap,
+    this.onSettingsTap,
   });
 
   @override
@@ -29,6 +31,7 @@ class QuickActionGrid extends StatelessWidget {
       _ActionItem('Inventory', Icons.warehouse_outlined, Colors.purple, onInventoryTap),
       _ActionItem('Customers', Icons.people_outline, Colors.teal, onCustomersTap),
       _ActionItem('Analytics', Icons.analytics_outlined, Colors.indigo, onAnalyticsTap),
+      _ActionItem('Settings', Icons.settings_outlined, Colors.blueGrey, onSettingsTap),
     ];
 
     return Column(
