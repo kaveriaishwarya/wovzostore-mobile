@@ -37,6 +37,12 @@ import '../../features/wishlist/data/repositories/wishlist_repository_impl.dart'
 import '../../features/wishlist/domain/repositories/wishlist_repository.dart';
 import '../../features/wishlist/presentation/bloc/wishlist_cubit.dart';
 
+import '../../features/merchant_products/data/datasources/merchant_product_remote_datasource.dart';
+import '../../features/merchant_products/data/repositories/merchant_product_repository_impl.dart';
+import '../../features/merchant_products/domain/repositories/merchant_product_repository.dart';
+import '../../features/merchant_products/presentation/bloc/merchant_product_form_cubit.dart';
+import '../../features/merchant_products/presentation/bloc/merchant_stock_cubit.dart';
+
 final GetIt sl = GetIt.instance;
 
 void setupCoreInjection({
@@ -294,6 +300,34 @@ void setupWishlistInjection({Dio? dioInstance}) {
   }
 }
 
+void setupMerchantProductsInjection({Dio? dioInstance}) {
+  if (!sl.isRegistered<MerchantProductRemoteDataSource>()) {
+    sl.registerLazySingleton<MerchantProductRemoteDataSource>(
+      () => MerchantProductRemoteDataSourceImpl(dio: dioInstance ?? sl<Dio>()),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantProductRepository>()) {
+    sl.registerLazySingleton<MerchantProductRepository>(
+      () => MerchantProductRepositoryImpl(
+        remoteDataSource: sl<MerchantProductRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantProductFormCubit>()) {
+    sl.registerFactory<MerchantProductFormCubit>(
+      () => MerchantProductFormCubit(repository: sl<MerchantProductRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantStockCubit>()) {
+    sl.registerFactory<MerchantStockCubit>(
+      () => MerchantStockCubit(repository: sl<MerchantProductRepository>()),
+    );
+  }
+}
+
 /// Root DI setup method calling core and feature setup.
 void setupInjection({
   ApiConfig? config,
@@ -312,4 +346,5 @@ void setupInjection({
   setupCatalogInjection(dioInstance: dioInstance);
   setupCartInjection(dioInstance: dioInstance);
   setupWishlistInjection(dioInstance: dioInstance);
+  setupMerchantProductsInjection(dioInstance: dioInstance);
 }

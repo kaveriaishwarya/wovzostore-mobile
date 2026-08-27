@@ -29,6 +29,8 @@ import '../../features/catalog/presentation/screens/product_details_screen.dart'
 import '../../features/catalog/presentation/screens/product_list_screen.dart';
 
 import '../../features/business_dashboard/presentation/screens/merchant_dashboard_screen.dart';
+import '../../features/merchant_products/presentation/screens/merchant_product_form_screen.dart';
+import '../../features/merchant_products/presentation/screens/merchant_product_list_screen.dart';
 
 import '../auth/auth_role.dart';
 import '../di/injection.dart';
@@ -324,7 +326,25 @@ class AppRouter {
               path: 'dashboard',
               builder: (context, state) => MerchantDashboardScreen(
                 onAnalyticsTap: () => context.push('/analytics'),
+                onProductsTap: () => context.push('/business/products'),
               ),
+            ),
+            GoRoute(
+              path: 'products',
+              builder: (context, state) => MerchantProductListScreen(
+                onAddProductTap: () => context.push('/business/products/new'),
+                onEditProductTap: (id) => context.push('/business/products/$id/edit'),
+              ),
+              routes: [
+                GoRoute(
+                  path: 'new',
+                  builder: (context, state) => const MerchantProductFormScreen(),
+                ),
+                GoRoute(
+                  path: ':id/edit',
+                  builder: (context, state) => const MerchantProductFormScreen(),
+                ),
+              ],
             ),
           ],
         ),
