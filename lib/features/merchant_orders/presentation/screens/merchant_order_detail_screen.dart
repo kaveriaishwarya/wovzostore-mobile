@@ -32,20 +32,27 @@ class MerchantOrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, int status) {
+  Widget _buildActionButtons(BuildContext context, int status, bool isUpdating) {
     final cubit = context.read<MerchantOrderDetailCubit>();
 
     final buttons = <Widget>[];
 
+    void handleAction(VoidCallback action) {
+      if (isUpdating) return;
+      action();
+    }
+
     if (status == 1) {
       buttons.add(
         ElevatedButton.icon(
-          onPressed: () => _showActionDialog(
-            context,
-            'Confirm Order',
-            false,
-            (comment) => cubit.confirmOrder(orderId, comment: comment),
-          ),
+          onPressed: isUpdating
+              ? null
+              : () => handleAction(() => _showActionDialog(
+                    context,
+                    'Confirm Order',
+                    false,
+                    (comment) => cubit.confirmOrder(orderId, comment: comment),
+                  )),
           icon: const Icon(Icons.check_circle_outline),
           label: const Text('Confirm Order'),
         ),
@@ -55,12 +62,14 @@ class MerchantOrderDetailScreen extends StatelessWidget {
     if (status == 2) {
       buttons.add(
         ElevatedButton.icon(
-          onPressed: () => _showActionDialog(
-            context,
-            'Start Processing Order',
-            false,
-            (comment) => cubit.startProcessingOrder(orderId, comment: comment),
-          ),
+          onPressed: isUpdating
+              ? null
+              : () => handleAction(() => _showActionDialog(
+                    context,
+                    'Start Processing Order',
+                    false,
+                    (comment) => cubit.startProcessingOrder(orderId, comment: comment),
+                  )),
           icon: const Icon(Icons.build_circle_outlined),
           label: const Text('Process Order'),
         ),
@@ -70,12 +79,14 @@ class MerchantOrderDetailScreen extends StatelessWidget {
     if (status == 7) {
       buttons.add(
         ElevatedButton.icon(
-          onPressed: () => _showActionDialog(
-            context,
-            'Pack Order',
-            false,
-            (comment) => cubit.packOrder(orderId, comment: comment),
-          ),
+          onPressed: isUpdating
+              ? null
+              : () => handleAction(() => _showActionDialog(
+                    context,
+                    'Pack Order',
+                    false,
+                    (comment) => cubit.packOrder(orderId, comment: comment),
+                  )),
           icon: const Icon(Icons.inventory_2_outlined),
           label: const Text('Pack Order'),
         ),
@@ -85,12 +96,14 @@ class MerchantOrderDetailScreen extends StatelessWidget {
     if (status == 3) {
       buttons.add(
         ElevatedButton.icon(
-          onPressed: () => _showActionDialog(
-            context,
-            'Ship Order',
-            false,
-            (comment) => cubit.shipOrder(orderId, comment: comment),
-          ),
+          onPressed: isUpdating
+              ? null
+              : () => handleAction(() => _showActionDialog(
+                    context,
+                    'Ship Order',
+                    false,
+                    (comment) => cubit.shipOrder(orderId, comment: comment),
+                  )),
           icon: const Icon(Icons.local_shipping_outlined),
           label: const Text('Ship Order'),
         ),
@@ -100,12 +113,14 @@ class MerchantOrderDetailScreen extends StatelessWidget {
     if (status == 4) {
       buttons.add(
         ElevatedButton.icon(
-          onPressed: () => _showActionDialog(
-            context,
-            'Out for Delivery',
-            false,
-            (comment) => cubit.markOutForDelivery(orderId, comment: comment),
-          ),
+          onPressed: isUpdating
+              ? null
+              : () => handleAction(() => _showActionDialog(
+                    context,
+                    'Out for Delivery',
+                    false,
+                    (comment) => cubit.markOutForDelivery(orderId, comment: comment),
+                  )),
           icon: const Icon(Icons.two_wheeler),
           label: const Text('Out for Delivery'),
         ),
@@ -115,12 +130,14 @@ class MerchantOrderDetailScreen extends StatelessWidget {
     if (status == 4 || status == 5) {
       buttons.add(
         ElevatedButton.icon(
-          onPressed: () => _showActionDialog(
-            context,
-            'Deliver Order',
-            false,
-            (comment) => cubit.deliverOrder(orderId, comment: comment),
-          ),
+          onPressed: isUpdating
+              ? null
+              : () => handleAction(() => _showActionDialog(
+                    context,
+                    'Deliver Order',
+                    false,
+                    (comment) => cubit.deliverOrder(orderId, comment: comment),
+                  )),
           icon: const Icon(Icons.check_circle),
           label: const Text('Mark Delivered'),
         ),
@@ -130,12 +147,14 @@ class MerchantOrderDetailScreen extends StatelessWidget {
     if (status >= 1 && status < 6 && status != 10) {
       buttons.add(
         OutlinedButton.icon(
-          onPressed: () => _showActionDialog(
-            context,
-            'Cancel Order',
-            true,
-            (reason) => cubit.cancelOrder(orderId, reason),
-          ),
+          onPressed: isUpdating
+              ? null
+              : () => handleAction(() => _showActionDialog(
+                    context,
+                    'Cancel Order',
+                    true,
+                    (reason) => cubit.cancelOrder(orderId, reason),
+                  )),
           icon: const Icon(Icons.cancel_outlined, color: Colors.red),
           label: const Text('Cancel Order', style: TextStyle(color: Colors.red)),
         ),
@@ -145,12 +164,14 @@ class MerchantOrderDetailScreen extends StatelessWidget {
     if (status == 20) {
       buttons.add(
         ElevatedButton.icon(
-          onPressed: () => _showActionDialog(
-            context,
-            'Approve Return',
-            false,
-            (comment) => cubit.approveReturn(orderId, comment: comment),
-          ),
+          onPressed: isUpdating
+              ? null
+              : () => handleAction(() => _showActionDialog(
+                    context,
+                    'Approve Return',
+                    false,
+                    (comment) => cubit.approveReturn(orderId, comment: comment),
+                  )),
           icon: const Icon(Icons.assignment_return),
           label: const Text('Approve Return'),
         ),
@@ -160,12 +181,14 @@ class MerchantOrderDetailScreen extends StatelessWidget {
     if (status == 21) {
       buttons.add(
         ElevatedButton.icon(
-          onPressed: () => _showActionDialog(
-            context,
-            'Complete Return',
-            false,
-            (comment) => cubit.completeReturn(orderId, comment: comment),
-          ),
+          onPressed: isUpdating
+              ? null
+              : () => handleAction(() => _showActionDialog(
+                    context,
+                    'Complete Return',
+                    false,
+                    (comment) => cubit.completeReturn(orderId, comment: comment),
+                  )),
           icon: const Icon(Icons.check),
           label: const Text('Complete Return'),
         ),
@@ -176,10 +199,30 @@ class MerchantOrderDetailScreen extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: buttons,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isUpdating)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  SizedBox(width: 8),
+                  Text('Updating order status...', style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
+                ],
+              ),
+            ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: buttons,
+          ),
+        ],
       ),
     );
   }
@@ -199,6 +242,10 @@ class MerchantOrderDetailScreen extends StatelessWidget {
             if (state.isError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.errorMessage ?? 'Operation failed')),
+              );
+            } else if (state.isSuccess && state.order != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Order status: ${state.order!.statusName}')),
               );
             }
           },
@@ -257,7 +304,7 @@ class MerchantOrderDetailScreen extends StatelessWidget {
                           const SizedBox(height: 8),
                           Text('Placed on: ${order.createdAt.day}/${order.createdAt.month}/${order.createdAt.year} ${order.createdAt.hour}:${order.createdAt.minute}'),
                           Text('Payment: ${order.paymentStatusName} via ${order.paymentMethodName}'),
-                          _buildActionButtons(context, order.status),
+                          _buildActionButtons(context, order.status, state.isUpdating),
                         ],
                       ),
                     ),

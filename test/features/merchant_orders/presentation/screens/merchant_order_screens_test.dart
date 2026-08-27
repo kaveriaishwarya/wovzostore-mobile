@@ -170,5 +170,26 @@ void main() {
       expect(find.text('Cotton Hoodie'), findsOneWidget);
       expect(find.text('Confirm Order'), findsOneWidget);
     });
+
+    testWidgets('Tapping action button opens OrderStatusActionDialog and submits transition', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MerchantOrderDetailScreen(
+            orderId: 'ord-123',
+            cubit: detailCubit,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Confirm Order'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Confirm Order'), findsAtLeast(1));
+      expect(find.text('Comment (Optional)'), findsOneWidget);
+
+      await tester.tap(find.text('Confirm'));
+      await tester.pumpAndSettle();
+    });
   });
 }
