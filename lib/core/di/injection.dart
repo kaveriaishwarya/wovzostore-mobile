@@ -43,6 +43,12 @@ import '../../features/merchant_products/domain/repositories/merchant_product_re
 import '../../features/merchant_products/presentation/bloc/merchant_product_form_cubit.dart';
 import '../../features/merchant_products/presentation/bloc/merchant_stock_cubit.dart';
 
+import '../../features/merchant_orders/data/datasources/merchant_order_remote_datasource.dart';
+import '../../features/merchant_orders/data/repositories/merchant_order_repository_impl.dart';
+import '../../features/merchant_orders/domain/repositories/merchant_order_repository.dart';
+import '../../features/merchant_orders/presentation/bloc/merchant_order_detail_cubit.dart';
+import '../../features/merchant_orders/presentation/bloc/merchant_order_list_cubit.dart';
+
 final GetIt sl = GetIt.instance;
 
 void setupCoreInjection({
@@ -328,6 +334,35 @@ void setupMerchantProductsInjection({Dio? dioInstance}) {
   }
 }
 
+/// Registers Merchant Orders feature dependencies.
+void setupMerchantOrdersInjection({Dio? dioInstance}) {
+  if (!sl.isRegistered<MerchantOrderRemoteDataSource>()) {
+    sl.registerLazySingleton<MerchantOrderRemoteDataSource>(
+      () => MerchantOrderRemoteDataSourceImpl(dio: dioInstance ?? sl<Dio>()),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantOrderRepository>()) {
+    sl.registerLazySingleton<MerchantOrderRepository>(
+      () => MerchantOrderRepositoryImpl(
+        remoteDataSource: sl<MerchantOrderRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantOrderListCubit>()) {
+    sl.registerFactory<MerchantOrderListCubit>(
+      () => MerchantOrderListCubit(repository: sl<MerchantOrderRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantOrderDetailCubit>()) {
+    sl.registerFactory<MerchantOrderDetailCubit>(
+      () => MerchantOrderDetailCubit(repository: sl<MerchantOrderRepository>()),
+    );
+  }
+}
+
 /// Root DI setup method calling core and feature setup.
 void setupInjection({
   ApiConfig? config,
@@ -347,4 +382,5 @@ void setupInjection({
   setupCartInjection(dioInstance: dioInstance);
   setupWishlistInjection(dioInstance: dioInstance);
   setupMerchantProductsInjection(dioInstance: dioInstance);
+  setupMerchantOrdersInjection(dioInstance: dioInstance);
 }
