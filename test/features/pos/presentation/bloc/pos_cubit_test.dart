@@ -12,7 +12,7 @@ import 'package:wovzo_mobile/features/pos/presentation/bloc/pos_state.dart';
 class MockPosRepository implements PosRepository {
   bool shouldFail = false;
 
-  final sampleProduct = ProductModel(
+  final sampleProduct = const ProductModel(
     id: 'prod-1',
     name: 'Cotton T-Shirt',
     slug: 'cotton-tshirt',
@@ -21,7 +21,7 @@ class MockPosRepository implements PosRepository {
     basePrice: 499.0,
     isActive: true,
     isFeatured: false,
-    variants: const [
+    variants: [
       ProductVariantModel(
         id: 'var-1',
         productId: 'prod-1',
@@ -49,7 +49,10 @@ class MockPosRepository implements PosRepository {
 
   @override
   Future<List<PosCustomerModel>> getCustomers(String query) async {
-    return const [PosCustomerModel.walkIn];
+    return const [
+      PosCustomerModel.walkIn,
+      PosCustomerModel(id: 'cust-1', fullName: 'Alice Smith', phoneNumber: '9876543210'),
+    ];
   }
 
   @override
@@ -103,6 +106,24 @@ void main() {
       cubit.removeItem('var-1');
       expect(cubit.state.cartItems, isEmpty);
       expect(cubit.state.grandTotal, 0.0);
+    });
+
+    test('selectCustomer and searchCustomers work properly', () async {
+      final customers = await cubit.searchCustomers('Alice');
+      expect(customers.length, 2);
+
+      cubit.selectCustomer(customers.last);
+      expect(cubit.state.selectedCustomer.fullName, 'Alice Smith');
+    });
+
+    test('clearCart resets cart items and selected customer', () {
+      cubit.addItemFromProduct(repository.sampleProduct);
+      cubit.selectCustomer(const PosCustomerModel(id: 'c-1', fullName: 'John', phoneNumber: '123'));
+      expect(cubit.state.cartItems.length, 1);
+
+      cubit.clearCart();
+      expect(cubit.state.cartItems, isEmpty);
+      expect(cubit.state.selectedCustomer, PosCustomerModel.walkIn);
     });
 
     test('completeSale processes sale and resets cart state', () async {

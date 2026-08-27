@@ -104,6 +104,14 @@ class PosCubit extends Cubit<PosState> {
     emit(state.copyWith(selectedCustomer: customer));
   }
 
+  Future<List<PosCustomerModel>> searchCustomers(String query) async {
+    try {
+      return await _repository.getCustomers(query);
+    } catch (_) {
+      return [];
+    }
+  }
+
   void selectPaymentMethod(int method, String methodName) {
     emit(state.copyWith(
       selectedPaymentMethod: method,

@@ -12,7 +12,7 @@ import 'package:wovzo_mobile/features/pos/presentation/bloc/pos_cubit.dart';
 import 'package:wovzo_mobile/features/pos/presentation/screens/pos_screen.dart';
 
 class MockUIPosRepository implements PosRepository {
-  final sampleProduct = ProductModel(
+  final sampleProduct = const ProductModel(
     id: 'prod-1',
     name: 'Denim Jacket',
     slug: 'denim-jacket',
@@ -21,7 +21,7 @@ class MockUIPosRepository implements PosRepository {
     basePrice: 1299.0,
     isActive: true,
     isFeatured: false,
-    variants: const [
+    variants: [
       ProductVariantModel(
         id: 'var-1',
         productId: 'prod-1',
@@ -49,7 +49,10 @@ class MockUIPosRepository implements PosRepository {
 
   @override
   Future<List<PosCustomerModel>> getCustomers(String query) async {
-    return const [PosCustomerModel.walkIn];
+    return const [
+      PosCustomerModel.walkIn,
+      PosCustomerModel(id: 'cust-1', fullName: 'Bob Builder', phoneNumber: '1234567890'),
+    ];
   }
 
   @override
@@ -116,6 +119,43 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Complete Sale (₹1299.00)'), findsOneWidget);
+    });
+
+    testWidgets('Customer picker opens and allows customer selection', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PosScreen(cubit: cubit),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Change'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Select Customer'), findsOneWidget);
+    });
+
+    testWidgets('Complete sale opens confirmation modal then completes sale', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PosScreen(cubit: cubit),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Add'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Complete Sale (₹1299.00)'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Confirm Sale'), findsOneWidget);
+
+      await tester.tap(find.text('Confirm & Pay'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Sale Completed!'), findsOneWidget);
+      expect(find.text('Order #: WVZ-POS-055'), findsOneWidget);
     });
   });
 }
