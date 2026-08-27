@@ -49,6 +49,11 @@ import '../../features/merchant_orders/domain/repositories/merchant_order_reposi
 import '../../features/merchant_orders/presentation/bloc/merchant_order_detail_cubit.dart';
 import '../../features/merchant_orders/presentation/bloc/merchant_order_list_cubit.dart';
 
+import '../../features/pos/data/datasources/pos_remote_datasource.dart';
+import '../../features/pos/data/repositories/pos_repository_impl.dart';
+import '../../features/pos/domain/repositories/pos_repository.dart';
+import '../../features/pos/presentation/bloc/pos_cubit.dart';
+
 final GetIt sl = GetIt.instance;
 
 void setupCoreInjection({
@@ -363,6 +368,29 @@ void setupMerchantOrdersInjection({Dio? dioInstance}) {
   }
 }
 
+/// Registers POS feature dependencies.
+void setupPosInjection({Dio? dioInstance}) {
+  if (!sl.isRegistered<PosRemoteDataSource>()) {
+    sl.registerLazySingleton<PosRemoteDataSource>(
+      () => PosRemoteDataSourceImpl(dio: dioInstance ?? sl<Dio>()),
+    );
+  }
+
+  if (!sl.isRegistered<PosRepository>()) {
+    sl.registerLazySingleton<PosRepository>(
+      () => PosRepositoryImpl(
+        remoteDataSource: sl<PosRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<PosCubit>()) {
+    sl.registerFactory<PosCubit>(
+      () => PosCubit(repository: sl<PosRepository>()),
+    );
+  }
+}
+
 /// Root DI setup method calling core and feature setup.
 void setupInjection({
   ApiConfig? config,
@@ -383,4 +411,5 @@ void setupInjection({
   setupWishlistInjection(dioInstance: dioInstance);
   setupMerchantProductsInjection(dioInstance: dioInstance);
   setupMerchantOrdersInjection(dioInstance: dioInstance);
+  setupPosInjection(dioInstance: dioInstance);
 }

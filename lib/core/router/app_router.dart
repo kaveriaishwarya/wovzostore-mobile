@@ -33,6 +33,7 @@ import '../../features/merchant_products/presentation/screens/merchant_product_f
 import '../../features/merchant_products/presentation/screens/merchant_product_list_screen.dart';
 import '../../features/merchant_orders/presentation/screens/merchant_order_detail_screen.dart';
 import '../../features/merchant_orders/presentation/screens/merchant_order_list_screen.dart';
+import '../../features/pos/presentation/screens/pos_screen.dart';
 
 import '../auth/auth_role.dart';
 import '../di/injection.dart';
@@ -330,7 +331,12 @@ class AppRouter {
                 onAnalyticsTap: () => context.push('/analytics'),
                 onProductsTap: () => context.push('/business/products'),
                 onOrdersTap: () => context.push('/business/orders'),
+                onPosTap: () => context.push('/business/pos'),
               ),
+            ),
+            GoRoute(
+              path: 'pos',
+              builder: (context, state) => const PosScreen(),
             ),
             GoRoute(
               path: 'products',
