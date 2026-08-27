@@ -34,6 +34,8 @@ import '../../features/merchant_products/presentation/screens/merchant_product_l
 import '../../features/merchant_orders/presentation/screens/merchant_order_detail_screen.dart';
 import '../../features/merchant_orders/presentation/screens/merchant_order_list_screen.dart';
 import '../../features/pos/presentation/screens/pos_screen.dart';
+import '../../features/merchant_customers/presentation/screens/merchant_customer_detail_screen.dart';
+import '../../features/merchant_customers/presentation/screens/merchant_customer_list_screen.dart';
 
 import '../auth/auth_role.dart';
 import '../di/injection.dart';
@@ -332,7 +334,23 @@ class AppRouter {
                 onProductsTap: () => context.push('/business/products'),
                 onOrdersTap: () => context.push('/business/orders'),
                 onPosTap: () => context.push('/business/pos'),
+                onCustomersTap: () => context.push('/business/customers'),
               ),
+            ),
+            GoRoute(
+              path: 'customers',
+              builder: (context, state) => MerchantCustomerListScreen(
+                onCustomerTap: (id) => context.push('/business/customers/$id'),
+              ),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) {
+                    final customerId = state.pathParameters['id']!;
+                    return MerchantCustomerDetailScreen(customerId: customerId);
+                  },
+                ),
+              ],
             ),
             GoRoute(
               path: 'pos',
