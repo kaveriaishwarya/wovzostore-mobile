@@ -65,6 +65,12 @@ import '../../features/merchant_settings/data/repositories/merchant_settings_rep
 import '../../features/merchant_settings/domain/repositories/merchant_settings_repository.dart';
 import '../../features/merchant_settings/presentation/cubit/merchant_settings_cubit.dart';
 
+import '../../features/merchant_staff/data/datasources/merchant_staff_remote_datasource.dart';
+import '../../features/merchant_staff/data/repositories/merchant_staff_repository_impl.dart';
+import '../../features/merchant_staff/domain/repositories/merchant_staff_repository.dart';
+import '../../features/merchant_staff/presentation/bloc/merchant_staff_detail_cubit.dart';
+import '../../features/merchant_staff/presentation/bloc/merchant_staff_list_cubit.dart';
+
 final GetIt sl = GetIt.instance;
 
 void setupCoreInjection({
@@ -454,6 +460,36 @@ void setupMerchantSettingsInjection({Dio? dioInstance}) {
   }
 }
 
+void setupMerchantStaffInjection({Dio? dioInstance}) {
+  final dio = dioInstance ?? sl<Dio>();
+
+  if (!sl.isRegistered<MerchantStaffRemoteDataSource>()) {
+    sl.registerLazySingleton<MerchantStaffRemoteDataSource>(
+      () => MerchantStaffRemoteDataSourceImpl(dio: dio),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantStaffRepository>()) {
+    sl.registerLazySingleton<MerchantStaffRepository>(
+      () => MerchantStaffRepositoryImpl(
+        remoteDataSource: sl<MerchantStaffRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantStaffListCubit>()) {
+    sl.registerFactory<MerchantStaffListCubit>(
+      () => MerchantStaffListCubit(repository: sl<MerchantStaffRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantStaffDetailCubit>()) {
+    sl.registerFactory<MerchantStaffDetailCubit>(
+      () => MerchantStaffDetailCubit(repository: sl<MerchantStaffRepository>()),
+    );
+  }
+}
+
 /// Root DI setup method calling core and feature setup.
 void setupInjection({
   ApiConfig? config,
@@ -477,5 +513,6 @@ void setupInjection({
   setupPosInjection(dioInstance: dioInstance);
   setupMerchantCustomersInjection(dioInstance: dioInstance);
   setupMerchantSettingsInjection(dioInstance: dioInstance);
+  setupMerchantStaffInjection(dioInstance: dioInstance);
 }
 
