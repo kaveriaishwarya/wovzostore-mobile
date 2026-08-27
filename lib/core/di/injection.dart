@@ -54,6 +54,12 @@ import '../../features/pos/data/repositories/pos_repository_impl.dart';
 import '../../features/pos/domain/repositories/pos_repository.dart';
 import '../../features/pos/presentation/bloc/pos_cubit.dart';
 
+import '../../features/merchant_customers/data/datasources/merchant_customer_remote_datasource.dart';
+import '../../features/merchant_customers/data/repositories/merchant_customer_repository_impl.dart';
+import '../../features/merchant_customers/domain/repositories/merchant_customer_repository.dart';
+import '../../features/merchant_customers/presentation/bloc/merchant_customer_detail_cubit.dart';
+import '../../features/merchant_customers/presentation/bloc/merchant_customer_list_cubit.dart';
+
 final GetIt sl = GetIt.instance;
 
 void setupCoreInjection({
@@ -391,6 +397,35 @@ void setupPosInjection({Dio? dioInstance}) {
   }
 }
 
+/// Registers Merchant Customers feature dependencies.
+void setupMerchantCustomersInjection({Dio? dioInstance}) {
+  if (!sl.isRegistered<MerchantCustomerRemoteDataSource>()) {
+    sl.registerLazySingleton<MerchantCustomerRemoteDataSource>(
+      () => MerchantCustomerRemoteDataSourceImpl(dio: dioInstance ?? sl<Dio>()),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantCustomerRepository>()) {
+    sl.registerLazySingleton<MerchantCustomerRepository>(
+      () => MerchantCustomerRepositoryImpl(
+        remoteDataSource: sl<MerchantCustomerRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantCustomerListCubit>()) {
+    sl.registerFactory<MerchantCustomerListCubit>(
+      () => MerchantCustomerListCubit(repository: sl<MerchantCustomerRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantCustomerDetailCubit>()) {
+    sl.registerFactory<MerchantCustomerDetailCubit>(
+      () => MerchantCustomerDetailCubit(repository: sl<MerchantCustomerRepository>()),
+    );
+  }
+}
+
 /// Root DI setup method calling core and feature setup.
 void setupInjection({
   ApiConfig? config,
@@ -412,4 +447,5 @@ void setupInjection({
   setupMerchantProductsInjection(dioInstance: dioInstance);
   setupMerchantOrdersInjection(dioInstance: dioInstance);
   setupPosInjection(dioInstance: dioInstance);
+  setupMerchantCustomersInjection(dioInstance: dioInstance);
 }
