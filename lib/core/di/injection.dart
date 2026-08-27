@@ -60,6 +60,11 @@ import '../../features/merchant_customers/domain/repositories/merchant_customer_
 import '../../features/merchant_customers/presentation/bloc/merchant_customer_detail_cubit.dart';
 import '../../features/merchant_customers/presentation/bloc/merchant_customer_list_cubit.dart';
 
+import '../../features/merchant_settings/data/datasources/merchant_settings_remote_datasource.dart';
+import '../../features/merchant_settings/data/repositories/merchant_settings_repository_impl.dart';
+import '../../features/merchant_settings/domain/repositories/merchant_settings_repository.dart';
+import '../../features/merchant_settings/presentation/cubit/merchant_settings_cubit.dart';
+
 final GetIt sl = GetIt.instance;
 
 void setupCoreInjection({
@@ -426,6 +431,29 @@ void setupMerchantCustomersInjection({Dio? dioInstance}) {
   }
 }
 
+/// Registers Merchant Settings feature dependencies.
+void setupMerchantSettingsInjection({Dio? dioInstance}) {
+  if (!sl.isRegistered<MerchantSettingsRemoteDataSource>()) {
+    sl.registerLazySingleton<MerchantSettingsRemoteDataSource>(
+      () => MerchantSettingsRemoteDataSourceImpl(dio: dioInstance ?? sl<Dio>()),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantSettingsRepository>()) {
+    sl.registerLazySingleton<MerchantSettingsRepository>(
+      () => MerchantSettingsRepositoryImpl(
+        remoteDataSource: sl<MerchantSettingsRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantSettingsCubit>()) {
+    sl.registerFactory<MerchantSettingsCubit>(
+      () => MerchantSettingsCubit(repository: sl<MerchantSettingsRepository>()),
+    );
+  }
+}
+
 /// Root DI setup method calling core and feature setup.
 void setupInjection({
   ApiConfig? config,
@@ -448,4 +476,6 @@ void setupInjection({
   setupMerchantOrdersInjection(dioInstance: dioInstance);
   setupPosInjection(dioInstance: dioInstance);
   setupMerchantCustomersInjection(dioInstance: dioInstance);
+  setupMerchantSettingsInjection(dioInstance: dioInstance);
 }
+
