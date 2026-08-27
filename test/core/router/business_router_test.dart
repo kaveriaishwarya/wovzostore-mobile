@@ -189,6 +189,58 @@ void main() {
       );
     });
 
+    test('guardBusinessRoute enforces /business/staff role restrictions', () {
+      // Unauthenticated -> /login
+      expect(
+        AppRouter.guardBusinessRoute(
+          location: '/business/staff',
+          isAuthenticated: false,
+          userRole: null,
+        ),
+        equals('/login'),
+      );
+
+      // Customer -> /home
+      expect(
+        AppRouter.guardBusinessRoute(
+          location: '/business/staff',
+          isAuthenticated: true,
+          userRole: AppRole.customer,
+        ),
+        equals('/home'),
+      );
+
+      // StoreManager -> /unauthorized
+      expect(
+        AppRouter.guardBusinessRoute(
+          location: '/business/staff',
+          isAuthenticated: true,
+          userRole: AppRole.storeManager,
+        ),
+        equals('/unauthorized'),
+      );
+
+      // Admin -> ALLOW (null)
+      expect(
+        AppRouter.guardBusinessRoute(
+          location: '/business/staff',
+          isAuthenticated: true,
+          userRole: AppRole.admin,
+        ),
+        isNull,
+      );
+
+      // SuperAdmin -> ALLOW (null)
+      expect(
+        AppRouter.guardBusinessRoute(
+          location: '/business/staff',
+          isAuthenticated: true,
+          userRole: AppRole.superAdmin,
+        ),
+        isNull,
+      );
+    });
+
     testWidgets('authenticated merchant accessing /business/dashboard renders MerchantDashboardScreen', (tester) async {
       final router = AppRouter.createRouter(
         initialLocation: '/business/dashboard',

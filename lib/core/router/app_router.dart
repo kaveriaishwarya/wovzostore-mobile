@@ -37,6 +37,8 @@ import '../../features/pos/presentation/screens/pos_screen.dart';
 import '../../features/merchant_customers/presentation/screens/merchant_customer_detail_screen.dart';
 import '../../features/merchant_customers/presentation/screens/merchant_customer_list_screen.dart';
 import '../../features/merchant_settings/presentation/screens/merchant_settings_screen.dart';
+import '../../features/merchant_staff/presentation/screens/merchant_staff_detail_screen.dart';
+import '../../features/merchant_staff/presentation/screens/merchant_staff_list_screen.dart';
 
 import '../auth/auth_role.dart';
 import '../di/injection.dart';
@@ -138,6 +140,11 @@ class AppRouter {
       }
       if (location.startsWith('/business/settings')) {
         if (!AuthRoleHelper.canAccessSettings(userRole)) {
+          return '/unauthorized';
+        }
+      }
+      if (location.startsWith('/business/staff')) {
+        if (!AuthRoleHelper.canAccessStaff(userRole)) {
           return '/unauthorized';
         }
       }
@@ -342,11 +349,28 @@ class AppRouter {
                 onPosTap: () => context.push('/business/pos'),
                 onCustomersTap: () => context.push('/business/customers'),
                 onSettingsTap: () => context.push('/business/settings'),
+                onStaffTap: () => context.push('/business/staff'),
               ),
             ),
             GoRoute(
               path: 'settings',
               builder: (context, state) => const MerchantSettingsScreen(),
+            ),
+            GoRoute(
+              path: 'staff',
+              builder: (context, state) => MerchantStaffListScreen(
+                onStaffTap: (id) => context.push('/business/staff/$id'),
+                onAddStaffTap: () => context.push('/business/staff/new'),
+              ),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) {
+                    final staffId = state.pathParameters['id']!;
+                    return MerchantStaffDetailScreen(staffId: staffId);
+                  },
+                ),
+              ],
             ),
             GoRoute(
               path: 'customers',
