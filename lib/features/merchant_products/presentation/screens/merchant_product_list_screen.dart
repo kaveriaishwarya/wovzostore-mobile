@@ -1,27 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
+import '../../../catalog/data/models/category_model.dart';
+import '../../../catalog/domain/repositories/catalog_repository.dart';
 import '../../../catalog/presentation/bloc/product_list_cubit.dart';
 import '../../../catalog/presentation/bloc/product_list_state.dart';
 import '../bloc/merchant_product_form_cubit.dart';
 import '../bloc/merchant_stock_cubit.dart';
 import '../widgets/stock_adjustment_dialog.dart';
 
-class MerchantProductListScreen extends StatelessWidget {
+class MerchantProductListScreen extends StatefulWidget {
   final ProductListCubit? productListCubit;
+  final CatalogRepository? catalogRepository;
   final VoidCallback? onAddProductTap;
   final Function(String productId)? onEditProductTap;
 
   const MerchantProductListScreen({
     super.key,
     this.productListCubit,
+    this.catalogRepository,
     this.onAddProductTap,
     this.onEditProductTap,
   });
 
   @override
+  State<MerchantProductListScreen> createState() => _MerchantProductListScreenState();
+}
+
+class _MerchantProductListScreenState extends State<MerchantProductListScreen> {
+  final ScrollController _scrollController = ScrollController();
+  List<CategoryModel> _categories = [];
+  String? _selectedCategoryId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadCategories() async {
+    final repo = widget.catalogRepository ?? sl<CatalogRepository>();
+    try {
+      final categories = await repo.getCategories();
+      if (mounted) {
+        setState(() {
+          _categories = categories;
+        });
+      }
+    } catch (_) {}
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      context.read<ProductListCubit>().loadNextPage();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final activeProductListCubit = productListCubit ?? sl<ProductListCubit>();
+    final activeProductListCubit = widget.productListCubit ?? sl<ProductListCubit>();
 
     return MultiBlocProvider(
       providers: [
@@ -41,7 +85,7 @@ class MerchantProductListScreen extends StatelessWidget {
           actions: [
             IconButton(
               icon: const Icon(Icons.add),
-              onPressed: onAddProductTap,
+              onPressed: widget.onAddProductTap,
               tooltip: 'Add Product',
             ),
           ],
@@ -85,15 +129,64 @@ class MerchantProductListScreen extends StatelessWidget {
                     },
                   ),
                 ),
+                if (_categories.isNotEmpty)
+                  SizedBox(
+                    height: 40,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      itemCount: _categories.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          final isSelected = _selectedCategoryId == null;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: ChoiceChip(
+                              label: const Text('All Categories'),
+                              selected: isSelected,
+                              onSelected: (_) {
+                                setState(() => _selectedCategoryId = null);
+                                context.read<ProductListCubit>().updateFilters(categoryId: null);
+                              },
+                            ),
+                          );
+                        }
+                        final cat = _categories[index - 1];
+                        final isSelected = _selectedCategoryId == cat.id;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: ChoiceChip(
+                            label: Text(cat.name),
+                            selected: isSelected,
+                            onSelected: (_) {
+                              setState(() => _selectedCategoryId = cat.id);
+                              context.read<ProductListCubit>().updateFilters(categoryId: cat.id);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                const SizedBox(height: 8),
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () => context.read<ProductListCubit>().loadProducts(),
                     child: products.isEmpty
                         ? const Center(child: Text('No products found.'))
                         : ListView.builder(
-                            itemCount: products.length,
+                            controller: _scrollController,
+                            itemCount: products.length + (state.isLoadingMore ? 1 : 0),
                             padding: const EdgeInsets.all(12.0),
                             itemBuilder: (context, index) {
+                              if (index == products.length) {
+                                return const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              }
+
                               final product = products[index];
                               return Card(
                                 margin: const EdgeInsets.only(bottom: 12.0),
@@ -125,14 +218,16 @@ class MerchantProductListScreen extends StatelessWidget {
                                       Text('Base Price: ₹${product.basePrice.toStringAsFixed(2)}'),
                                       const SizedBox(height: 8),
                                       if (product.variants.isNotEmpty) ...[
-                                        const Text('Variants:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                        const Text('Variants & Stock:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                                         ...product.variants.map((variant) {
                                           return Padding(
                                             padding: const EdgeInsets.symmetric(vertical: 4.0),
                                             child: Row(
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
-                                                Text('${variant.name} (${variant.sku}) - ₹${variant.price}'),
+                                                Expanded(
+                                                  child: Text('${variant.name} (${variant.sku}) - ₹${variant.price}'),
+                                                ),
                                                 IconButton(
                                                   icon: const Icon(Icons.edit_note, size: 20),
                                                   onPressed: () {
@@ -159,7 +254,7 @@ class MerchantProductListScreen extends StatelessWidget {
                                           TextButton.icon(
                                             icon: const Icon(Icons.edit, size: 16),
                                             label: const Text('Edit'),
-                                            onPressed: () => onEditProductTap?.call(product.id),
+                                            onPressed: () => widget.onEditProductTap?.call(product.id),
                                           ),
                                         ],
                                       ),
@@ -176,7 +271,7 @@ class MerchantProductListScreen extends StatelessWidget {
           },
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: onAddProductTap,
+          onPressed: widget.onAddProductTap,
           child: const Icon(Icons.add),
         ),
       ),
