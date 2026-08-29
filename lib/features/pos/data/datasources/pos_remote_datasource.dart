@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import '../../../analytics/data/models/paged_result_model.dart';
 import '../../../catalog/data/models/product_model.dart';
@@ -14,6 +15,7 @@ abstract class PosRemoteDataSource {
     required int paymentMethod,
     required String paymentMethodName,
   });
+  Future<Uint8List> fetchPosInvoice(String id);
 }
 
 class PosRemoteDataSourceImpl implements PosRemoteDataSource {
@@ -138,5 +140,14 @@ class PosRemoteDataSourceImpl implements PosRemoteDataSource {
       paymentMethodName: paymentMethodName,
       createdAt: DateTime.now(),
     );
+  }
+
+  @override
+  Future<Uint8List> fetchPosInvoice(String id) async {
+    final response = await _dio.get(
+      '/api/v1/pos/$id/invoice',
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return Uint8List.fromList(response.data as List<int>);
   }
 }

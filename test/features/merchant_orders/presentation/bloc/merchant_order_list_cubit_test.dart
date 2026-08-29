@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wovzo_mobile/core/network/api_exception.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/paged_result_model.dart';
@@ -68,6 +69,11 @@ class MockMerchantOrderRepository implements MerchantOrderRepository {
   Future<OrderModel> approveReturn(String orderId, {String? comment, String? adminId}) => throw UnimplementedError();
   @override
   Future<OrderModel> completeReturn(String orderId, {String? comment, String? adminId}) => throw UnimplementedError();
+
+  @override
+  Future<Uint8List> getInvoice(String orderId) async {
+    return Uint8List.fromList([60, 104, 116, 109, 108, 62]);
+  }
 }
 
 void main() {

@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import '../../../analytics/data/models/paged_result_model.dart';
 import '../../../catalog/data/models/product_model.dart';
 import '../../data/models/pos_cart_item_model.dart';
@@ -13,4 +14,5 @@ abstract class PosRepository {
     required int paymentMethod,
     required String paymentMethodName,
   });
+  Future<Uint8List> getInvoice(String id);
 }

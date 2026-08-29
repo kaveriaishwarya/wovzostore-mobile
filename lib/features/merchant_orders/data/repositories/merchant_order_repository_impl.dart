@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../analytics/data/models/paged_result_model.dart';
@@ -95,5 +96,10 @@ class MerchantOrderRepositoryImpl implements MerchantOrderRepository {
   @override
   Future<OrderModel> completeReturn(String orderId, {String? comment, String? adminId}) {
     return _guard(() => _remoteDataSource.completeReturn(orderId, comment: comment, adminId: adminId));
+  }
+
+  @override
+  Future<Uint8List> getInvoice(String orderId) {
+    return _guard(() => _remoteDataSource.fetchOrderInvoice(orderId));
   }
 }

@@ -156,4 +156,32 @@ class PosCubit extends Cubit<PosState> {
       ));
     }
   }
+
+  bool _isFetchingInvoice = false;
+
+  Future<void> fetchInvoice(String orderId) async {
+    if (_isFetchingInvoice) return;
+    _isFetchingInvoice = true;
+
+    emit(state.copyWith(isInvoiceLoading: true, invoiceError: null));
+    try {
+      final bytes = await _repository.getInvoice(orderId);
+      emit(state.copyWith(
+        isInvoiceLoading: false,
+        invoiceBytes: bytes,
+      ));
+    } on ApiException catch (e) {
+      emit(state.copyWith(
+        isInvoiceLoading: false,
+        invoiceError: e.message,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isInvoiceLoading: false,
+        invoiceError: e.toString(),
+      ));
+    } finally {
+      _isFetchingInvoice = false;
+    }
+  }
 }

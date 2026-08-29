@@ -88,4 +88,32 @@ class MerchantOrderDetailCubit extends Cubit<MerchantOrderDetailState> {
   Future<void> completeReturn(String orderId, {String? comment, String? adminId}) {
     return _executeTransition(() => _repository.completeReturn(orderId, comment: comment, adminId: adminId));
   }
+
+  bool _isFetchingInvoice = false;
+
+  Future<void> loadInvoice(String orderId) async {
+    if (_isFetchingInvoice) return;
+    _isFetchingInvoice = true;
+
+    emit(state.copyWith(isInvoiceLoading: true, invoiceError: null));
+    try {
+      final bytes = await _repository.getInvoice(orderId);
+      emit(state.copyWith(
+        isInvoiceLoading: false,
+        invoiceBytes: bytes,
+      ));
+    } on ApiException catch (e) {
+      emit(state.copyWith(
+        isInvoiceLoading: false,
+        invoiceError: e.message,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isInvoiceLoading: false,
+        invoiceError: e.toString(),
+      ));
+    } finally {
+      _isFetchingInvoice = false;
+    }
+  }
 }

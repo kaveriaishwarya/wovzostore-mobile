@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../../core/di/injection.dart';
 import '../../../catalog/data/models/product_model.dart';
 import '../bloc/pos_cubit.dart';
@@ -167,39 +170,87 @@ class _PosScreenState extends State<PosScreen> {
     );
   }
 
+  Future<void> _sharePosInvoice(BuildContext context, String orderNumber, List<int> bytes) async {
+    try {
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/POS_Invoice_$orderNumber.html');
+      await file.writeAsBytes(bytes, flush: true);
+      await Share.shareXFiles(
+        [XFile(file.path, mimeType: 'text/html')],
+        text: 'POS Tax Invoice for Order #$orderNumber',
+        subject: 'POS Tax Invoice $orderNumber',
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to share POS invoice: $e')),
+        );
+      }
+    }
+  }
+
   void _showReceiptDialog(BuildContext context, PosState state) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.green),
-            SizedBox(width: 8),
-            Text('Sale Completed!'),
-          ],
+      builder: (dialogContext) => BlocProvider.value(
+        value: context.read<PosCubit>(),
+        child: BlocBuilder<PosCubit, PosState>(
+          builder: (context, dialogState) {
+            final sale = dialogState.completedSale;
+            return AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green),
+                  SizedBox(width: 8),
+                  Text('Sale Completed!'),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Order #: ${sale?.orderNumber ?? ''}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 8),
+                  Text('Total Paid: ₹${sale?.grandTotal.toStringAsFixed(2) ?? '0.00'}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text('Payment Method: ${sale?.paymentMethodName ?? 'Cash'}'),
+                  Text('Customer: ${dialogState.selectedCustomer.fullName}'),
+                  Text('Time: ${DateTime.now().hour}:${DateTime.now().minute}'),
+                  const Divider(),
+                  if (dialogState.isInvoiceLoading)
+                    const Row(
+                      children: [
+                        SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                        SizedBox(width: 8),
+                        Text('Fetching POS Tax Invoice...', style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
+                      ],
+                    )
+                  else if (dialogState.invoiceBytes != null && sale != null)
+                    ElevatedButton.icon(
+                      onPressed: () => _sharePosInvoice(context, sale.orderNumber, dialogState.invoiceBytes!),
+                      icon: const Icon(Icons.print, size: 18),
+                      label: const Text('Print / Share POS Tax Invoice'),
+                    )
+                  else if (sale != null)
+                    OutlinedButton.icon(
+                      onPressed: () => context.read<PosCubit>().fetchInvoice(sale.orderId),
+                      icon: const Icon(Icons.receipt, size: 18),
+                      label: const Text('Fetch POS Tax Invoice'),
+                    ),
+                ],
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    context.read<PosCubit>().clearCart();
+                  },
+                  child: const Text('New Sale'),
+                ),
+              ],
+            );
+          },
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Order #: ${state.completedSale?.orderNumber ?? ''}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 8),
-            Text('Total Paid: ₹${state.completedSale?.grandTotal.toStringAsFixed(2) ?? '0.00'}', style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text('Payment Method: ${state.completedSale?.paymentMethodName ?? 'Cash'}'),
-            Text('Customer: ${state.selectedCustomer.fullName}'),
-            Text('Time: ${DateTime.now().hour}:${DateTime.now().minute}'),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              context.read<PosCubit>().clearCart();
-            },
-            child: const Text('New Sale'),
-          ),
-        ],
       ),
     );
   }

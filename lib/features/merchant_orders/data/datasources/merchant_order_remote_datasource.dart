@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import '../../../analytics/data/models/paged_result_model.dart';
 import '../models/order_list_model.dart';
@@ -26,6 +27,10 @@ abstract class MerchantOrderRemoteDataSource {
   Future<OrderModel> cancelOrder(String orderId, String reason);
   Future<OrderModel> approveReturn(String orderId, {String? comment, String? adminId});
   Future<OrderModel> completeReturn(String orderId, {String? comment, String? adminId});
+
+  /// Fetches the tax invoice HTML for the given order.
+  /// Returns raw bytes of the HTML file.
+  Future<Uint8List> fetchOrderInvoice(String orderId);
 }
 
 class MerchantOrderRemoteDataSourceImpl implements MerchantOrderRemoteDataSource {
@@ -153,5 +158,14 @@ class MerchantOrderRemoteDataSourceImpl implements MerchantOrderRemoteDataSource
       data: OrderStatusTransitionRequestModel(comment: comment, adminId: adminId).toJson(),
     );
     return OrderModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<Uint8List> fetchOrderInvoice(String orderId) async {
+    final response = await _dio.get(
+      '/api/v1/orders/$orderId/invoice',
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return Uint8List.fromList(response.data as List<int>);
   }
 }

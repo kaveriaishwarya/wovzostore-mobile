@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wovzo_mobile/core/network/api_exception.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/paged_result_model.dart';
@@ -81,6 +82,12 @@ class MockDetailMerchantOrderRepository implements MerchantOrderRepository {
   Future<OrderModel> approveReturn(String orderId, {String? comment, String? adminId}) => throw UnimplementedError();
   @override
   Future<OrderModel> completeReturn(String orderId, {String? comment, String? adminId}) => throw UnimplementedError();
+
+  @override
+  Future<Uint8List> getInvoice(String orderId) async {
+    if (shouldFail) throw const ApiServerException(message: 'Failed to fetch invoice');
+    return Uint8List.fromList([60, 104, 116, 109, 108, 62, 60, 47, 104, 116, 109, 108, 62]); // <html></html>
+  }
 }
 
 void main() {
@@ -99,6 +106,8 @@ void main() {
 
     test('initial state is MerchantOrderDetailStatus.initial', () {
       expect(cubit.state.status, MerchantOrderDetailStatus.initial);
+      expect(cubit.state.isInvoiceLoading, false);
+      expect(cubit.state.invoiceBytes, null);
     });
 
     test('loadOrder emits loading then success state', () async {
@@ -126,6 +135,33 @@ void main() {
       expect(states[1].status, MerchantOrderDetailStatus.success);
       expect(states[1].order?.status, 2);
       expect(states[1].order?.statusName, 'Confirmed');
+    });
+
+    test('loadInvoice emits loading then success with invoice bytes', () async {
+      final states = <MerchantOrderDetailState>[];
+      cubit.stream.listen(states.add);
+
+      await cubit.loadInvoice('ord-123');
+      await Future.delayed(Duration.zero);
+
+      expect(states.length, 2);
+      expect(states[0].isInvoiceLoading, true);
+      expect(states[1].isInvoiceLoading, false);
+      expect(states[1].invoiceBytes, isNotNull);
+    });
+
+    test('loadInvoice handles error correctly', () async {
+      repository.shouldFail = true;
+      final states = <MerchantOrderDetailState>[];
+      cubit.stream.listen(states.add);
+
+      await cubit.loadInvoice('ord-123');
+      await Future.delayed(Duration.zero);
+
+      expect(states.length, 2);
+      expect(states[0].isInvoiceLoading, true);
+      expect(states[1].isInvoiceLoading, false);
+      expect(states[1].invoiceError, 'Failed to fetch invoice');
     });
   });
 }

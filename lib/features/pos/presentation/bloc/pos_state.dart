@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import '../../../catalog/data/models/product_model.dart';
 import '../../data/models/pos_cart_item_model.dart';
@@ -15,6 +16,9 @@ class PosState extends Equatable {
   final String selectedPaymentMethodName;
   final PosSaleResultModel? completedSale;
   final String? errorMessage;
+  final bool isInvoiceLoading;
+  final Uint8List? invoiceBytes;
+  final String? invoiceError;
 
   const PosState({
     this.status = PosStatus.initial,
@@ -25,6 +29,9 @@ class PosState extends Equatable {
     this.selectedPaymentMethodName = 'Cash',
     this.completedSale,
     this.errorMessage,
+    this.isInvoiceLoading = false,
+    this.invoiceBytes,
+    this.invoiceError,
   });
 
   double get subtotal => cartItems.fold(0.0, (sum, item) => sum + item.lineTotal);
@@ -47,6 +54,10 @@ class PosState extends Equatable {
     PosSaleResultModel? completedSale,
     bool clearCompletedSale = false,
     String? errorMessage,
+    bool? isInvoiceLoading,
+    Uint8List? invoiceBytes,
+    bool clearInvoiceBytes = false,
+    String? invoiceError,
   }) {
     return PosState(
       status: status ?? this.status,
@@ -57,6 +68,9 @@ class PosState extends Equatable {
       selectedPaymentMethodName: selectedPaymentMethodName ?? this.selectedPaymentMethodName,
       completedSale: clearCompletedSale ? null : (completedSale ?? this.completedSale),
       errorMessage: errorMessage,
+      isInvoiceLoading: isInvoiceLoading ?? this.isInvoiceLoading,
+      invoiceBytes: clearInvoiceBytes ? null : (invoiceBytes ?? this.invoiceBytes),
+      invoiceError: invoiceError,
     );
   }
 
@@ -70,5 +84,8 @@ class PosState extends Equatable {
         selectedPaymentMethodName,
         completedSale,
         errorMessage,
+        isInvoiceLoading,
+        invoiceBytes,
+        invoiceError,
       ];
 }

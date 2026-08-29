@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -70,6 +71,11 @@ class MockUIPosRepository implements PosRepository {
       paymentMethodName: paymentMethodName,
       createdAt: DateTime.now(),
     );
+  }
+
+  @override
+  Future<Uint8List> getInvoice(String id) async {
+    return Uint8List.fromList([60, 104, 116, 109, 108, 62]);
   }
 }
 

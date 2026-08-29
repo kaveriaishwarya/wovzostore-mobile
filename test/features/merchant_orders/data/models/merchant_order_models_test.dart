@@ -1,7 +1,9 @@
+import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wovzo_mobile/features/merchant_orders/data/models/order_list_model.dart';
 import 'package:wovzo_mobile/features/merchant_orders/data/models/order_model.dart';
 import 'package:wovzo_mobile/features/merchant_orders/data/models/order_transition_request_model.dart';
+import 'package:wovzo_mobile/features/merchant_orders/data/models/tax_invoice_dto.dart';
 
 void main() {
   group('Merchant Order Models Serialization Tests', () {
@@ -107,6 +109,25 @@ void main() {
       const request = CancelOrderRequestModel(reason: 'Out of stock');
       final json = request.toJson();
       expect(json['reason'], 'Out of stock');
+    });
+
+    test('TaxInvoiceDto instantiates and holds backend DTO values', () {
+      final now = DateTime.now();
+      final dto = TaxInvoiceDto(
+        orderId: 'ord-123',
+        orderNumber: 'WVZ-0001',
+        invoiceNumber: 'INV-20260828-WVZ-0001',
+        invoiceDate: now,
+        contentType: 'text/html; charset=utf-8',
+        fileBytes: Uint8List.fromList([1, 2, 3]),
+        htmlContent: '<html>Test</html>',
+      );
+
+      expect(dto.orderId, 'ord-123');
+      expect(dto.invoiceNumber, 'INV-20260828-WVZ-0001');
+      expect(dto.contentType, 'text/html; charset=utf-8');
+      expect(dto.fileBytes.length, 3);
+      expect(dto.htmlContent, '<html>Test</html>');
     });
   });
 }

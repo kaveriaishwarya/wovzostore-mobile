@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../analytics/data/models/paged_result_model.dart';
@@ -48,5 +49,10 @@ class PosRepositoryImpl implements PosRepository {
           paymentMethod: paymentMethod,
           paymentMethodName: paymentMethodName,
         ));
+  }
+
+  @override
+  Future<Uint8List> getInvoice(String id) {
+    return _guard(() => _remoteDataSource.fetchPosInvoice(id));
   }
 }

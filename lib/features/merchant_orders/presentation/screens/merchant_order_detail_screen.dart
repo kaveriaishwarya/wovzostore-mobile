@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../../core/di/injection.dart';
 import '../bloc/merchant_order_detail_cubit.dart';
 import '../bloc/merchant_order_detail_state.dart';
@@ -28,6 +32,129 @@ class MerchantOrderDetailScreen extends StatelessWidget {
         title: title,
         isCancellation: isCancellation,
         onConfirm: onConfirm,
+      ),
+    );
+  }
+
+  Future<void> _shareInvoice(BuildContext context, String orderNumber, List<int> bytes) async {
+    try {
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/Invoice_$orderNumber.html');
+      await file.writeAsBytes(bytes, flush: true);
+      await Share.shareXFiles(
+        [XFile(file.path, mimeType: 'text/html')],
+        text: 'Tax Invoice for Order #$orderNumber',
+        subject: 'Tax Invoice $orderNumber',
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to share invoice: $e')),
+        );
+      }
+    }
+  }
+
+  Widget _buildInvoiceCard(BuildContext context, MerchantOrderDetailState state, String orderNumber) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.receipt_long, color: Theme.of(context).primaryColor),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Tax Invoice (GST)',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+                if (state.invoiceBytes != null)
+                  const Chip(
+                    label: Text('Generated', style: TextStyle(fontSize: 10, color: Colors.green)),
+                    backgroundColor: Color(0xFFE8F5E9),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Persisted backend GST invoice with statutory details.',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            const SizedBox(height: 12),
+            if (state.isInvoiceLoading)
+              const Row(
+                children: [
+                  SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                  SizedBox(width: 12),
+                  Text('Fetching tax invoice from server...', style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
+                ],
+              )
+            else if (state.invoiceError != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Error: ${state.invoiceError}', style: const TextStyle(color: Colors.red, fontSize: 12)),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: () => context.read<MerchantOrderDetailCubit>().loadInvoice(orderId),
+                    icon: const Icon(Icons.refresh, size: 16),
+                    label: const Text('Retry Fetch Invoice'),
+                  ),
+                ],
+              )
+            else if (state.invoiceBytes != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text(
+                        utf8.decode(state.invoiceBytes!),
+                        maxLines: 6,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontFamily: 'monospace', fontSize: 10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () => _shareInvoice(context, orderNumber, state.invoiceBytes!),
+                        icon: const Icon(Icons.print, size: 18),
+                        label: const Text('Print / Share HTML Invoice'),
+                      ),
+                    ],
+                  ),
+                ],
+              )
+            else
+              ElevatedButton.icon(
+                onPressed: () => context.read<MerchantOrderDetailCubit>().loadInvoice(orderId),
+                icon: const Icon(Icons.download, size: 18),
+                label: const Text('Fetch & View Tax Invoice'),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -309,6 +436,8 @@ class MerchantOrderDetailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  _buildInvoiceCard(context, state, order.orderNumber),
                   const SizedBox(height: 16),
                   if (order.shippingAddress != null) ...[
                     Text('Shipping Address', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),

@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wovzo_mobile/features/analytics/data/models/paged_result_model.dart';
 import 'package:wovzo_mobile/features/catalog/data/models/product_model.dart';
@@ -71,6 +72,11 @@ class MockPosRepository implements PosRepository {
       createdAt: DateTime.now(),
     );
   }
+
+  @override
+  Future<Uint8List> getInvoice(String id) async {
+    return Uint8List.fromList([60, 104, 116, 109, 108, 62]);
+  }
 }
 
 void main() {
@@ -133,6 +139,19 @@ void main() {
       expect(cubit.state.status, PosStatus.saleCompleted);
       expect(cubit.state.completedSale?.orderId, 'ord-100');
       expect(cubit.state.cartItems, isEmpty);
+    });
+
+    test('fetchInvoice updates state with invoice bytes', () async {
+      final states = <PosState>[];
+      cubit.stream.listen(states.add);
+
+      await cubit.fetchInvoice('ord-100');
+      await Future.delayed(Duration.zero);
+
+      expect(states.length, 2);
+      expect(states[0].isInvoiceLoading, true);
+      expect(states[1].isInvoiceLoading, false);
+      expect(states[1].invoiceBytes, isNotNull);
     });
   });
 }
