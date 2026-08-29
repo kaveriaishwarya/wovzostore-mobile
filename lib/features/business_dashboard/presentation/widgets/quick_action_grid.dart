@@ -9,6 +9,9 @@ class QuickActionGrid extends StatelessWidget {
   final VoidCallback? onAnalyticsTap;
   final VoidCallback? onSettingsTap;
   final VoidCallback? onStaffTap;
+  final VoidCallback? onSuppliersTap;
+  final VoidCallback? onPurchasesTap;
+  final VoidCallback? onStockMovementsTap;
 
   const QuickActionGrid({
     super.key,
@@ -20,6 +23,9 @@ class QuickActionGrid extends StatelessWidget {
     this.onAnalyticsTap,
     this.onSettingsTap,
     this.onStaffTap,
+    this.onSuppliersTap,
+    this.onPurchasesTap,
+    this.onStockMovementsTap,
   });
 
   @override
@@ -30,7 +36,9 @@ class QuickActionGrid extends StatelessWidget {
       _ActionItem('POS', Icons.point_of_sale, Colors.blue, onPosTap),
       _ActionItem('Orders', Icons.shopping_bag_outlined, Colors.orange, onOrdersTap),
       _ActionItem('Products', Icons.inventory_2_outlined, Colors.green, onProductsTap),
-      _ActionItem('Inventory', Icons.warehouse_outlined, Colors.purple, onInventoryTap),
+      _ActionItem('Purchases', Icons.shopping_cart_checkout_outlined, Colors.deepOrange, onPurchasesTap),
+      _ActionItem('Suppliers', Icons.local_shipping_outlined, Colors.brown, onSuppliersTap),
+      _ActionItem('Stock Audit', Icons.warehouse_outlined, Colors.purple, onStockMovementsTap ?? onInventoryTap),
       _ActionItem('Customers', Icons.people_outline, Colors.teal, onCustomersTap),
       _ActionItem('Analytics', Icons.analytics_outlined, Colors.indigo, onAnalyticsTap),
       _ActionItem('Settings', Icons.settings_outlined, Colors.blueGrey, onSettingsTap),

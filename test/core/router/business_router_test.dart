@@ -266,5 +266,32 @@ void main() {
 
       expect(find.byType(MerchantSettingsScreen), findsOneWidget);
     });
+
+    test('StoreManager accessing /business/suppliers is ALLOWED (null redirect)', () {
+      final redirect = AppRouter.guardBusinessRoute(
+        location: '/business/suppliers',
+        isAuthenticated: true,
+        userRole: AppRole.storeManager,
+      );
+      expect(redirect, isNull);
+    });
+
+    test('StoreManager accessing /business/purchases is ALLOWED (null redirect)', () {
+      final redirect = AppRouter.guardBusinessRoute(
+        location: '/business/purchases',
+        isAuthenticated: true,
+        userRole: AppRole.storeManager,
+      );
+      expect(redirect, isNull);
+    });
+
+    test('StoreManager accessing /business/inventory/stock-movements is ALLOWED (null redirect)', () {
+      final redirect = AppRouter.guardBusinessRoute(
+        location: '/business/inventory/stock-movements',
+        isAuthenticated: true,
+        userRole: AppRole.storeManager,
+      );
+      expect(redirect, isNull);
+    });
   });
 }

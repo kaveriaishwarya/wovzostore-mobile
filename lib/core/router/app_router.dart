@@ -39,6 +39,11 @@ import '../../features/merchant_customers/presentation/screens/merchant_customer
 import '../../features/merchant_settings/presentation/screens/merchant_settings_screen.dart';
 import '../../features/merchant_staff/presentation/screens/merchant_staff_detail_screen.dart';
 import '../../features/merchant_staff/presentation/screens/merchant_staff_list_screen.dart';
+import '../../features/merchant_purchases/presentation/screens/merchant_supplier_list_screen.dart';
+import '../../features/merchant_purchases/presentation/screens/merchant_purchase_list_screen.dart';
+import '../../features/merchant_purchases/presentation/screens/merchant_purchase_detail_screen.dart';
+import '../../features/merchant_purchases/presentation/screens/goods_receiving_screen.dart';
+import '../../features/merchant_purchases/presentation/screens/stock_movement_list_screen.dart';
 
 import '../auth/auth_role.dart';
 import '../di/injection.dart';
@@ -350,7 +355,45 @@ class AppRouter {
                 onCustomersTap: () => context.push('/business/customers'),
                 onSettingsTap: () => context.push('/business/settings'),
                 onStaffTap: () => context.push('/business/staff'),
+                onSuppliersTap: () => context.push('/business/suppliers'),
+                onPurchasesTap: () => context.push('/business/purchases'),
+                onStockMovementsTap: () => context.push('/business/inventory/stock-movements'),
               ),
+            ),
+            GoRoute(
+              path: 'suppliers',
+              builder: (context, state) => const MerchantSupplierListScreen(),
+            ),
+            GoRoute(
+              path: 'purchases',
+              builder: (context, state) => MerchantPurchaseListScreen(
+                onPurchaseTap: (id) => context.push('/business/purchases/$id'),
+              ),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) {
+                    final id = state.pathParameters['id']!;
+                    return MerchantPurchaseDetailScreen(
+                      purchaseId: id,
+                      onReceiveGoodsTap: () => context.push('/business/purchases/$id/receive'),
+                    );
+                  },
+                  routes: [
+                    GoRoute(
+                      path: 'receive',
+                      builder: (context, state) {
+                        final id = state.pathParameters['id']!;
+                        return GoodsReceivingScreen(purchaseId: id);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            GoRoute(
+              path: 'inventory/stock-movements',
+              builder: (context, state) => const StockMovementListScreen(),
             ),
             GoRoute(
               path: 'settings',
