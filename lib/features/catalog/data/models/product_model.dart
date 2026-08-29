@@ -15,6 +15,9 @@ class ProductModel {
   final String? tags;
   final bool isActive;
   final bool isFeatured;
+  final String? hsnCode;
+  final double taxRatePercentage;
+  final bool isTaxInclusive;
   final List<ProductVariantModel> variants;
   final List<ProductImageModel> images;
 
@@ -32,6 +35,9 @@ class ProductModel {
     this.tags,
     required this.isActive,
     required this.isFeatured,
+    this.hsnCode,
+    this.taxRatePercentage = 0.0,
+    this.isTaxInclusive = false,
     this.variants = const [],
     this.images = const [],
   });
@@ -51,6 +57,9 @@ class ProductModel {
       tags: json['tags'] as String?,
       isActive: json['isActive'] as bool? ?? true,
       isFeatured: json['isFeatured'] as bool? ?? false,
+      hsnCode: json['hsnCode'] as String?,
+      taxRatePercentage: (json['taxRatePercentage'] as num?)?.toDouble() ?? 0.0,
+      isTaxInclusive: json['isTaxInclusive'] as bool? ?? false,
       variants: json['variants'] != null
           ? (json['variants'] as List<dynamic>)
               .map((item) => ProductVariantModel.fromJson(item as Map<String, dynamic>))
@@ -79,6 +88,9 @@ class ProductModel {
       'tags': tags,
       'isActive': isActive,
       'isFeatured': isFeatured,
+      'hsnCode': hsnCode,
+      'taxRatePercentage': taxRatePercentage,
+      'isTaxInclusive': isTaxInclusive,
       'variants': variants.map((v) => v.toJson()).toList(),
       'images': images.map((i) => i.toJson()).toList(),
     };

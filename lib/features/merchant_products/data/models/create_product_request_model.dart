@@ -43,6 +43,9 @@ class CreateProductRequestModel {
   final String? shortDescription;
   final String? tags;
   final bool isFeatured;
+  final String? hsnCode;
+  final double taxRatePercentage;
+  final bool isTaxInclusive;
   final List<AddVariantRequestModel>? initialVariants;
 
   const CreateProductRequestModel({
@@ -55,6 +58,9 @@ class CreateProductRequestModel {
     this.shortDescription,
     this.tags,
     this.isFeatured = false,
+    this.hsnCode,
+    this.taxRatePercentage = 0.0,
+    this.isTaxInclusive = false,
     this.initialVariants,
   });
 
@@ -69,6 +75,9 @@ class CreateProductRequestModel {
       if (shortDescription != null) 'shortDescription': shortDescription,
       if (tags != null) 'tags': tags,
       'isFeatured': isFeatured,
+      if (hsnCode != null && hsnCode!.isNotEmpty) 'hsnCode': hsnCode,
+      'taxRatePercentage': taxRatePercentage,
+      'isTaxInclusive': isTaxInclusive,
       if (initialVariants != null && initialVariants!.isNotEmpty)
         'initialVariants': initialVariants!.map((v) => v.toJson()).toList(),
     };

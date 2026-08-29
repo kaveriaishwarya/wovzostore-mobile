@@ -14,6 +14,19 @@ class StoreSettingsModel {
   final int replaceWindowDays;
   final bool returnAllowed;
   final String? policyText;
+  final String? gstin;
+  final String? legalName;
+  final String? panNumber;
+  final String? stateCode;
+  final String? stateName;
+  final String? addressLine1;
+  final String? addressLine2;
+  final String? city;
+  final String? pinCode;
+  final String? bankName;
+  final String? bankAccountNumber;
+  final String? bankIfscCode;
+  final String invoicePrefix;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -33,6 +46,19 @@ class StoreSettingsModel {
     required this.replaceWindowDays,
     required this.returnAllowed,
     this.policyText,
+    this.gstin,
+    this.legalName,
+    this.panNumber,
+    this.stateCode,
+    this.stateName,
+    this.addressLine1,
+    this.addressLine2,
+    this.city,
+    this.pinCode,
+    this.bankName,
+    this.bankAccountNumber,
+    this.bankIfscCode,
+    this.invoicePrefix = 'INV-',
     required this.createdAt,
     this.updatedAt,
   });
@@ -54,7 +80,20 @@ class StoreSettingsModel {
       replaceWindowDays: json['replaceWindowDays'] as int? ?? 0,
       returnAllowed: json['returnAllowed'] as bool? ?? false,
       policyText: json['policyText'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      gstin: json['gstin'] as String?,
+      legalName: json['legalName'] as String?,
+      panNumber: json['panNumber'] as String?,
+      stateCode: json['stateCode'] as String?,
+      stateName: json['stateName'] as String?,
+      addressLine1: json['addressLine1'] as String?,
+      addressLine2: json['addressLine2'] as String?,
+      city: json['city'] as String?,
+      pinCode: json['pinCode'] as String?,
+      bankName: json['bankName'] as String?,
+      bankAccountNumber: json['bankAccountNumber'] as String?,
+      bankIfscCode: json['bankIfscCode'] as String?,
+      invoicePrefix: json['invoicePrefix'] as String? ?? 'INV-',
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt'] as String) : DateTime.now(),
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
     );
   }
@@ -76,6 +115,19 @@ class StoreSettingsModel {
       'replaceWindowDays': replaceWindowDays,
       'returnAllowed': returnAllowed,
       'policyText': policyText,
+      'gstin': gstin,
+      'legalName': legalName,
+      'panNumber': panNumber,
+      'stateCode': stateCode,
+      'stateName': stateName,
+      'addressLine1': addressLine1,
+      'addressLine2': addressLine2,
+      'city': city,
+      'pinCode': pinCode,
+      'bankName': bankName,
+      'bankAccountNumber': bankAccountNumber,
+      'bankIfscCode': bankIfscCode,
+      'invoicePrefix': invoicePrefix,
     };
   }
 }

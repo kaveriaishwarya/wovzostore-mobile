@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
+import '../../../auth/presentation/bloc/auth_cubit.dart';
 import '../../data/models/store_settings_model.dart';
 import '../cubit/merchant_settings_cubit.dart';
 import '../cubit/merchant_settings_state.dart';
 
 class MerchantSettingsScreen extends StatefulWidget {
   final MerchantSettingsCubit? cubit;
+  final bool? isReadOnly;
 
   const MerchantSettingsScreen({
     super.key,
     this.cubit,
+    this.isReadOnly,
   });
 
   @override
@@ -38,6 +41,23 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
   late final TextEditingController _replaceWindowDaysController;
   late final TextEditingController _policyTextController;
 
+  // GST & Business Identity controllers
+  late final TextEditingController _gstinController;
+  late final TextEditingController _legalNameController;
+  late final TextEditingController _panNumberController;
+  late final TextEditingController _stateCodeController;
+  late final TextEditingController _stateNameController;
+  late final TextEditingController _addressLine1Controller;
+  late final TextEditingController _addressLine2Controller;
+  late final TextEditingController _cityController;
+  late final TextEditingController _pinCodeController;
+  late final TextEditingController _invoicePrefixController;
+
+  // Bank details controllers
+  late final TextEditingController _bankNameController;
+  late final TextEditingController _bankAccountNumberController;
+  late final TextEditingController _bankIfscCodeController;
+
   bool _codEnabled = true;
   bool _returnAllowed = true;
   String _defaultCurrency = 'INR';
@@ -46,6 +66,46 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
 
   bool _isFormInitialized = false;
   bool _isSubmitting = false;
+
+  static const List<Map<String, String>> _indianStates = [
+    {'code': '01', 'name': 'Jammu and Kashmir'},
+    {'code': '02', 'name': 'Himachal Pradesh'},
+    {'code': '03', 'name': 'Punjab'},
+    {'code': '04', 'name': 'Chandigarh'},
+    {'code': '05', 'name': 'Uttarakhand'},
+    {'code': '06', 'name': 'Haryana'},
+    {'code': '07', 'name': 'Delhi'},
+    {'code': '08', 'name': 'Rajasthan'},
+    {'code': '09', 'name': 'Uttar Pradesh'},
+    {'code': '10', 'name': 'Bihar'},
+    {'code': '11', 'name': 'Sikkim'},
+    {'code': '12', 'name': 'Arunachal Pradesh'},
+    {'code': '13', 'name': 'Nagaland'},
+    {'code': '14', 'name': 'Manipur'},
+    {'code': '15', 'name': 'Mizoram'},
+    {'code': '16', 'name': 'Tripura'},
+    {'code': '17', 'name': 'Meghalaya'},
+    {'code': '18', 'name': 'Assam'},
+    {'code': '19', 'name': 'West Bengal'},
+    {'code': '20', 'name': 'Jharkhand'},
+    {'code': '21', 'name': 'Odisha'},
+    {'code': '22', 'name': 'Chhattisgarh'},
+    {'code': '23', 'name': 'Madhya Pradesh'},
+    {'code': '24', 'name': 'Gujarat'},
+    {'code': '26', 'name': 'Dadra & Nagar Haveli and Daman & Diu'},
+    {'code': '27', 'name': 'Maharashtra'},
+    {'code': '28', 'name': 'Andhra Pradesh (Old)'},
+    {'code': '29', 'name': 'Karnataka'},
+    {'code': '30', 'name': 'Goa'},
+    {'code': '31', 'name': 'Lakshadweep'},
+    {'code': '32', 'name': 'Kerala'},
+    {'code': '33', 'name': 'Tamil Nadu'},
+    {'code': '34', 'name': 'Puducherry'},
+    {'code': '35', 'name': 'Andaman and Nicobar Islands'},
+    {'code': '36', 'name': 'Telangana'},
+    {'code': '37', 'name': 'Andhra Pradesh'},
+    {'code': '38', 'name': 'Ladakh'},
+  ];
 
   @override
   void initState() {
@@ -64,6 +124,21 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
     _returnWindowDaysController = TextEditingController();
     _replaceWindowDaysController = TextEditingController();
     _policyTextController = TextEditingController();
+
+    _gstinController = TextEditingController();
+    _legalNameController = TextEditingController();
+    _panNumberController = TextEditingController();
+    _stateCodeController = TextEditingController();
+    _stateNameController = TextEditingController();
+    _addressLine1Controller = TextEditingController();
+    _addressLine2Controller = TextEditingController();
+    _cityController = TextEditingController();
+    _pinCodeController = TextEditingController();
+    _invoicePrefixController = TextEditingController(text: 'INV-');
+
+    _bankNameController = TextEditingController();
+    _bankAccountNumberController = TextEditingController();
+    _bankIfscCodeController = TextEditingController();
 
     final activeCubit = widget.cubit ?? (sl.isRegistered<MerchantSettingsCubit>() ? sl<MerchantSettingsCubit>() : null);
     activeCubit?.loadSettings();
@@ -85,7 +160,35 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
     _returnWindowDaysController.dispose();
     _replaceWindowDaysController.dispose();
     _policyTextController.dispose();
+
+    _gstinController.dispose();
+    _legalNameController.dispose();
+    _panNumberController.dispose();
+    _stateCodeController.dispose();
+    _stateNameController.dispose();
+    _addressLine1Controller.dispose();
+    _addressLine2Controller.dispose();
+    _cityController.dispose();
+    _pinCodeController.dispose();
+    _invoicePrefixController.dispose();
+
+    _bankNameController.dispose();
+    _bankAccountNumberController.dispose();
+    _bankIfscCodeController.dispose();
     super.dispose();
+  }
+
+  bool _computeReadOnly(BuildContext context) {
+    if (widget.isReadOnly == true) return true;
+    try {
+      if (sl.isRegistered<AuthCubit>()) {
+        final authState = sl<AuthCubit>().state;
+        if (authState.user != null && authState.user!.role == 'StoreManager') {
+          return true;
+        }
+      }
+    } catch (_) {}
+    return false;
   }
 
   void _populateForm(StoreSettingsModel settings) {
@@ -106,6 +209,21 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
     _returnWindowDaysController.text = settings.returnWindowDays.toString();
     _replaceWindowDaysController.text = settings.replaceWindowDays.toString();
     _policyTextController.text = settings.policyText ?? '';
+
+    _gstinController.text = settings.gstin ?? '';
+    _legalNameController.text = settings.legalName ?? '';
+    _panNumberController.text = settings.panNumber ?? '';
+    _stateCodeController.text = settings.stateCode ?? '';
+    _stateNameController.text = settings.stateName ?? '';
+    _addressLine1Controller.text = settings.addressLine1 ?? '';
+    _addressLine2Controller.text = settings.addressLine2 ?? '';
+    _cityController.text = settings.city ?? '';
+    _pinCodeController.text = settings.pinCode ?? '';
+    _invoicePrefixController.text = settings.invoicePrefix.isEmpty ? 'INV-' : settings.invoicePrefix;
+
+    _bankNameController.text = settings.bankName ?? '';
+    _bankAccountNumberController.text = settings.bankAccountNumber ?? '';
+    _bankIfscCodeController.text = settings.bankIfscCode ?? '';
 
     _createdAt = settings.createdAt;
     _updatedAt = settings.updatedAt;
@@ -147,6 +265,19 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
       returnWindowDays: int.tryParse(_returnWindowDaysController.text.trim()) ?? 0,
       replaceWindowDays: int.tryParse(_replaceWindowDaysController.text.trim()) ?? 0,
       policyText: _policyTextController.text.trim().isEmpty ? null : _policyTextController.text.trim(),
+      gstin: _gstinController.text.trim().isEmpty ? null : _gstinController.text.trim().toUpperCase(),
+      legalName: _legalNameController.text.trim().isEmpty ? null : _legalNameController.text.trim(),
+      panNumber: _panNumberController.text.trim().isEmpty ? null : _panNumberController.text.trim().toUpperCase(),
+      stateCode: _stateCodeController.text.trim().isEmpty ? null : _stateCodeController.text.trim(),
+      stateName: _stateNameController.text.trim().isEmpty ? null : _stateNameController.text.trim(),
+      addressLine1: _addressLine1Controller.text.trim().isEmpty ? null : _addressLine1Controller.text.trim(),
+      addressLine2: _addressLine2Controller.text.trim().isEmpty ? null : _addressLine2Controller.text.trim(),
+      city: _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
+      pinCode: _pinCodeController.text.trim().isEmpty ? null : _pinCodeController.text.trim(),
+      bankName: _bankNameController.text.trim().isEmpty ? null : _bankNameController.text.trim(),
+      bankAccountNumber: _bankAccountNumberController.text.trim().isEmpty ? null : _bankAccountNumberController.text.trim(),
+      bankIfscCode: _bankIfscCodeController.text.trim().isEmpty ? null : _bankIfscCodeController.text.trim().toUpperCase(),
+      invoicePrefix: _invoicePrefixController.text.trim().isEmpty ? 'INV-' : _invoicePrefixController.text.trim().toUpperCase(),
       createdAt: _createdAt ?? DateTime.now(),
       updatedAt: _updatedAt,
     );
@@ -158,6 +289,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
   Widget build(BuildContext context) {
     final activeCubit = widget.cubit ?? sl<MerchantSettingsCubit>();
     final theme = Theme.of(context);
+    final isReadOnly = _computeReadOnly(context);
 
     return BlocProvider<MerchantSettingsCubit>.value(
       value: activeCubit,
@@ -252,6 +384,33 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    if (isReadOnly) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12.0),
+                        margin: const EdgeInsets.only(bottom: 16.0),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8.0),
+                          border: Border.all(color: Colors.amber.shade700),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.lock_outline, color: Colors.amber.shade900),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'View-Only Access: Store Managers cannot modify store settings or GST details.',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: Colors.amber.shade900,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
                     // Section 1: General Settings
                     _buildSectionCard(
                       context,
@@ -261,6 +420,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                         TextFormField(
                           key: const Key('store_name_input'),
                           controller: _storeNameController,
+                          readOnly: isReadOnly,
                           decoration: const InputDecoration(
                             labelText: 'Store Name *',
                             border: OutlineInputBorder(),
@@ -277,6 +437,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                         TextFormField(
                           key: const Key('logo_url_input'),
                           controller: _logoUrlController,
+                          readOnly: isReadOnly,
                           decoration: const InputDecoration(
                             labelText: 'Logo URL',
                             border: OutlineInputBorder(),
@@ -288,6 +449,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                         TextFormField(
                           key: const Key('support_email_input'),
                           controller: _supportEmailController,
+                          readOnly: isReadOnly,
                           keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
                             labelText: 'Support Email',
@@ -307,6 +469,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                         TextFormField(
                           key: const Key('support_phone_input'),
                           controller: _supportPhoneController,
+                          readOnly: isReadOnly,
                           keyboardType: TextInputType.phone,
                           decoration: const InputDecoration(
                             labelText: 'Support Phone',
@@ -320,11 +483,13 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                           title: const Text('Cash on Delivery (COD)'),
                           subtitle: const Text('Allow customers to pay cash upon delivery'),
                           value: _codEnabled,
-                          onChanged: (val) {
-                            setState(() {
-                              _codEnabled = val;
-                            });
-                          },
+                          onChanged: isReadOnly
+                              ? null
+                              : (val) {
+                                  setState(() {
+                                    _codEnabled = val;
+                                  });
+                                },
                           contentPadding: EdgeInsets.zero,
                         ),
                         if (_codEnabled) ...[
@@ -332,6 +497,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                           TextFormField(
                             key: const Key('min_cod_amount_input'),
                             controller: _minOrderAmountForCodController,
+                            readOnly: isReadOnly,
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             decoration: const InputDecoration(
                               labelText: 'Min Order Amount for COD (₹)',
@@ -364,7 +530,216 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Section 2: Delivery Settings
+                    // Section 2: GST & Business Identity
+                    _buildSectionCard(
+                      context,
+                      title: 'GST & Business Identity Configuration',
+                      icon: Icons.receipt_long_outlined,
+                      children: [
+                        TextFormField(
+                          key: const Key('gstin_input'),
+                          controller: _gstinController,
+                          readOnly: isReadOnly,
+                          textCapitalization: TextCapitalization.characters,
+                          decoration: const InputDecoration(
+                            labelText: 'GSTIN (15-digit GST Number)',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.verified_outlined),
+                            hintText: '27AAAAA0000A1Z5',
+                          ),
+                          validator: (val) {
+                            if (val != null && val.trim().isNotEmpty) {
+                              if (val.trim().length != 15) {
+                                return 'GSTIN must be exactly 15 characters';
+                              }
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          key: const Key('legal_name_input'),
+                          controller: _legalNameController,
+                          readOnly: isReadOnly,
+                          decoration: const InputDecoration(
+                            labelText: 'Legal Business Name',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.gavel_outlined),
+                            hintText: 'As registered with GST authority',
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                key: const Key('pan_number_input'),
+                                controller: _panNumberController,
+                                readOnly: isReadOnly,
+                                textCapitalization: TextCapitalization.characters,
+                                decoration: const InputDecoration(
+                                  labelText: 'PAN Number',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.badge_outlined),
+                                  hintText: 'AAAAA0000A',
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextFormField(
+                                key: const Key('invoice_prefix_input'),
+                                controller: _invoicePrefixController,
+                                readOnly: isReadOnly,
+                                textCapitalization: TextCapitalization.characters,
+                                decoration: const InputDecoration(
+                                  labelText: 'Invoice Prefix',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.tag),
+                                  hintText: 'INV-',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<String>(
+                          key: const Key('state_code_dropdown'),
+                          isExpanded: true,
+                          initialValue: _stateCodeController.text.isNotEmpty ? _stateCodeController.text : null,
+                          decoration: const InputDecoration(
+                            labelText: 'Merchant State (GST Place of Supply)',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.map_outlined),
+                          ),
+                          items: _indianStates.map((st) {
+                            return DropdownMenuItem(
+                              value: st['code'],
+                              child: Text(
+                                '${st['code']} - ${st['name']}',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: isReadOnly
+                              ? null
+                              : (val) {
+                                  if (val != null) {
+                                    setState(() {
+                                      _stateCodeController.text = val;
+                                      final matched = _indianStates.firstWhere(
+                                        (s) => s['code'] == val,
+                                        orElse: () => {'name': ''},
+                                      );
+                                      _stateNameController.text = matched['name']!;
+                                    });
+                                  }
+                                },
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          key: const Key('address_line1_input'),
+                          controller: _addressLine1Controller,
+                          readOnly: isReadOnly,
+                          decoration: const InputDecoration(
+                            labelText: 'Registered Address Line 1',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.location_on_outlined),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          key: const Key('address_line2_input'),
+                          controller: _addressLine2Controller,
+                          readOnly: isReadOnly,
+                          decoration: const InputDecoration(
+                            labelText: 'Address Line 2 (Optional)',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.location_on_outlined),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                key: const Key('city_input'),
+                                controller: _cityController,
+                                readOnly: isReadOnly,
+                                decoration: const InputDecoration(
+                                  labelText: 'City',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.location_city_outlined),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextFormField(
+                                key: const Key('pin_code_input'),
+                                controller: _pinCodeController,
+                                readOnly: isReadOnly,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: 'PIN Code',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.pin_drop_outlined),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Section 3: Bank Account Details
+                    _buildSectionCard(
+                      context,
+                      title: 'Bank Account Details (Invoice Display)',
+                      icon: Icons.account_balance_outlined,
+                      children: [
+                        TextFormField(
+                          key: const Key('bank_name_input'),
+                          controller: _bankNameController,
+                          readOnly: isReadOnly,
+                          decoration: const InputDecoration(
+                            labelText: 'Bank Name',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.account_balance),
+                            hintText: 'HDFC Bank / State Bank of India',
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          key: const Key('bank_account_number_input'),
+                          controller: _bankAccountNumberController,
+                          readOnly: isReadOnly,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Bank Account Number',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.credit_card_outlined),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          key: const Key('bank_ifsc_code_input'),
+                          controller: _bankIfscCodeController,
+                          readOnly: isReadOnly,
+                          textCapitalization: TextCapitalization.characters,
+                          decoration: const InputDecoration(
+                            labelText: 'IFSC Code',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.code),
+                            hintText: 'HDFC0001234',
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Section 4: Delivery Settings
                     _buildSectionCard(
                       context,
                       title: 'Delivery & Shipping Configuration',
@@ -373,6 +748,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                         TextFormField(
                           key: const Key('flat_delivery_charge_input'),
                           controller: _flatDeliveryChargeController,
+                          readOnly: isReadOnly,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           decoration: const InputDecoration(
                             labelText: 'Flat Delivery Charge (₹) *',
@@ -394,6 +770,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                         TextFormField(
                           key: const Key('free_delivery_threshold_input'),
                           controller: _freeDeliveryThresholdController,
+                          readOnly: isReadOnly,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           decoration: const InputDecoration(
                             labelText: 'Free Delivery Threshold (₹)',
@@ -415,6 +792,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                         TextFormField(
                           key: const Key('estimated_delivery_days_input'),
                           controller: _estimatedDeliveryDaysController,
+                          readOnly: isReadOnly,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                             labelText: 'Estimated Delivery Time (Days) *',
@@ -436,6 +814,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                         TextFormField(
                           key: const Key('servicable_pin_codes_input'),
                           controller: _servicablePinCodesController,
+                          readOnly: isReadOnly,
                           decoration: const InputDecoration(
                             labelText: 'Serviceable PIN Codes',
                             border: OutlineInputBorder(),
@@ -447,7 +826,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Section 3: Return & Replacement Policy
+                    // Section 5: Return & Replacement Policy
                     _buildSectionCard(
                       context,
                       title: 'Return & Replacement Policy',
@@ -458,17 +837,20 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                           title: const Text('Allow Returns'),
                           subtitle: const Text('Enable customers to initiate return requests'),
                           value: _returnAllowed,
-                          onChanged: (val) {
-                            setState(() {
-                              _returnAllowed = val;
-                            });
-                          },
+                          onChanged: isReadOnly
+                              ? null
+                              : (val) {
+                                  setState(() {
+                                    _returnAllowed = val;
+                                  });
+                                },
                           contentPadding: EdgeInsets.zero,
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
                           key: const Key('return_window_days_input'),
                           controller: _returnWindowDaysController,
+                          readOnly: isReadOnly,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                             labelText: 'Return Window (Days) *',
@@ -490,6 +872,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                         TextFormField(
                           key: const Key('replace_window_days_input'),
                           controller: _replaceWindowDaysController,
+                          readOnly: isReadOnly,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                             labelText: 'Replacement Window (Days) *',
@@ -511,6 +894,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                         TextFormField(
                           key: const Key('policy_text_input'),
                           controller: _policyTextController,
+                          readOnly: isReadOnly,
                           maxLines: 3,
                           decoration: const InputDecoration(
                             labelText: 'Policy Details / Notes',
@@ -526,7 +910,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                     // Save Button
                     FilledButton.icon(
                       key: const Key('save_settings_button'),
-                      onPressed: _isSubmitting
+                      onPressed: (_isSubmitting || isReadOnly)
                           ? null
                           : () => _saveSettings(context, context.read<MerchantSettingsCubit>()),
                       icon: _isSubmitting
