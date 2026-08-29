@@ -6,6 +6,9 @@ class AnalyticsHubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentPath = GoRouterState.of(context).uri.path;
+    final basePath = currentPath.startsWith('/business') ? '/business/analytics' : '/analytics';
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -52,7 +55,7 @@ class AnalyticsHubScreen extends StatelessWidget {
               description: 'Gross and net revenue, order volume, and periodic trend charts.',
               icon: Icons.trending_up,
               iconColor: Colors.blue.shade600,
-              route: '/analytics/sales',
+              route: '$basePath/sales',
             ),
             const SizedBox(height: 12),
             _buildNavigationCard(
@@ -61,7 +64,7 @@ class AnalyticsHubScreen extends StatelessWidget {
               description: 'Units sold, revenue, average selling price, and category/brand breakdown.',
               icon: Icons.shopping_bag_outlined,
               iconColor: Colors.teal.shade600,
-              route: '/analytics/products',
+              route: '$basePath/products',
             ),
             const SizedBox(height: 12),
             _buildNavigationCard(
@@ -70,7 +73,7 @@ class AnalyticsHubScreen extends StatelessWidget {
               description: 'Performance rankings and revenue distribution across categories and brands.',
               icon: Icons.category_outlined,
               iconColor: Colors.indigo.shade600,
-              route: '/analytics/categories-brands',
+              route: '$basePath/categories-brands',
             ),
             const SizedBox(height: 12),
             _buildNavigationCard(
@@ -79,7 +82,7 @@ class AnalyticsHubScreen extends StatelessWidget {
               description: 'Customer acquisition, repeat purchase rates, and top customer spenders.',
               icon: Icons.people_outline,
               iconColor: Colors.purple.shade600,
-              route: '/analytics/customers',
+              route: '$basePath/customers',
             ),
             const SizedBox(height: 12),
             _buildNavigationCard(
@@ -88,7 +91,7 @@ class AnalyticsHubScreen extends StatelessWidget {
               description: 'Stock valuation, low stock threshold alerts, and inventory velocity.',
               icon: Icons.inventory_2_outlined,
               iconColor: Colors.amber.shade800,
-              route: '/analytics/inventory',
+              route: '$basePath/inventory',
             ),
           ],
         ),

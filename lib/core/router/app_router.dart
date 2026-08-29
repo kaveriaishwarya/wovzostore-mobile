@@ -348,7 +348,7 @@ class AppRouter {
             GoRoute(
               path: 'dashboard',
               builder: (context, state) => MerchantDashboardScreen(
-                onAnalyticsTap: () => context.push('/analytics'),
+                onAnalyticsTap: () => context.push('/business/analytics'),
                 onProductsTap: () => context.push('/business/products'),
                 onOrdersTap: () => context.push('/business/orders'),
                 onPosTap: () => context.push('/business/pos'),
@@ -359,6 +359,47 @@ class AppRouter {
                 onPurchasesTap: () => context.push('/business/purchases'),
                 onStockMovementsTap: () => context.push('/business/inventory/stock-movements'),
               ),
+            ),
+            GoRoute(
+              path: 'analytics',
+              builder: (context, state) => const AnalyticsHubScreen(),
+              routes: [
+                GoRoute(
+                  path: 'sales',
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => sl<SalesCubit>(),
+                    child: const SalesReportScreen(),
+                  ),
+                ),
+                GoRoute(
+                  path: 'products',
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => sl<ProductPerformanceCubit>(),
+                    child: const ProductPerformanceScreen(),
+                  ),
+                ),
+                GoRoute(
+                  path: 'categories-brands',
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => sl<CategoryBrandCubit>(),
+                    child: const CategoryBrandPerformanceScreen(),
+                  ),
+                ),
+                GoRoute(
+                  path: 'customers',
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => sl<CustomerAnalyticsCubit>(),
+                    child: const CustomerAnalyticsScreen(),
+                  ),
+                ),
+                GoRoute(
+                  path: 'inventory',
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => sl<InventoryReportCubit>(),
+                    child: const InventoryReportScreen(),
+                  ),
+                ),
+              ],
             ),
             GoRoute(
               path: 'suppliers',
