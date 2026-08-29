@@ -71,6 +71,14 @@ import '../../features/merchant_staff/domain/repositories/merchant_staff_reposit
 import '../../features/merchant_staff/presentation/bloc/merchant_staff_detail_cubit.dart';
 import '../../features/merchant_staff/presentation/bloc/merchant_staff_list_cubit.dart';
 
+import '../../features/merchant_purchases/data/datasources/merchant_purchases_remote_datasource.dart';
+import '../../features/merchant_purchases/data/repositories/merchant_purchases_repository_impl.dart';
+import '../../features/merchant_purchases/domain/repositories/merchant_purchases_repository.dart';
+import '../../features/merchant_purchases/presentation/bloc/merchant_supplier_cubit.dart';
+import '../../features/merchant_purchases/presentation/bloc/merchant_purchase_cubit.dart';
+import '../../features/merchant_purchases/presentation/bloc/merchant_purchase_detail_cubit.dart';
+import '../../features/merchant_purchases/presentation/bloc/stock_movement_cubit.dart';
+
 final GetIt sl = GetIt.instance;
 
 void setupCoreInjection({
@@ -490,6 +498,48 @@ void setupMerchantStaffInjection({Dio? dioInstance}) {
   }
 }
 
+void setupMerchantPurchasesInjection({Dio? dioInstance}) {
+  final dio = dioInstance ?? sl<Dio>();
+
+  if (!sl.isRegistered<MerchantPurchasesRemoteDataSource>()) {
+    sl.registerLazySingleton<MerchantPurchasesRemoteDataSource>(
+      () => MerchantPurchasesRemoteDataSourceImpl(dio: dio),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantPurchasesRepository>()) {
+    sl.registerLazySingleton<MerchantPurchasesRepository>(
+      () => MerchantPurchasesRepositoryImpl(
+        remoteDataSource: sl<MerchantPurchasesRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantSupplierCubit>()) {
+    sl.registerFactory<MerchantSupplierCubit>(
+      () => MerchantSupplierCubit(repository: sl<MerchantPurchasesRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantPurchaseCubit>()) {
+    sl.registerFactory<MerchantPurchaseCubit>(
+      () => MerchantPurchaseCubit(repository: sl<MerchantPurchasesRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<MerchantPurchaseDetailCubit>()) {
+    sl.registerFactory<MerchantPurchaseDetailCubit>(
+      () => MerchantPurchaseDetailCubit(repository: sl<MerchantPurchasesRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<StockMovementCubit>()) {
+    sl.registerFactory<StockMovementCubit>(
+      () => StockMovementCubit(repository: sl<MerchantPurchasesRepository>()),
+    );
+  }
+}
+
 /// Root DI setup method calling core and feature setup.
 void setupInjection({
   ApiConfig? config,
@@ -514,5 +564,6 @@ void setupInjection({
   setupMerchantCustomersInjection(dioInstance: dioInstance);
   setupMerchantSettingsInjection(dioInstance: dioInstance);
   setupMerchantStaffInjection(dioInstance: dioInstance);
+  setupMerchantPurchasesInjection(dioInstance: dioInstance);
 }
 

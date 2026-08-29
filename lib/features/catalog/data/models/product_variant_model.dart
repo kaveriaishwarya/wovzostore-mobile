@@ -2,6 +2,7 @@ class ProductVariantModel {
   final String id;
   final String productId;
   final String sku;
+  final String? barcode;
   final String name;
   final double price;
   final double? compareAtPrice;
@@ -16,6 +17,7 @@ class ProductVariantModel {
     required this.id,
     required this.productId,
     required this.sku,
+    this.barcode,
     required this.name,
     required this.price,
     this.compareAtPrice,
@@ -32,6 +34,7 @@ class ProductVariantModel {
       id: json['id'] as String? ?? '',
       productId: json['productId'] as String? ?? '',
       sku: json['sku'] as String? ?? json['SKU'] as String? ?? '',
+      barcode: json['barcode'] as String?,
       name: json['name'] as String? ?? '',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
       compareAtPrice: (json['compareAtPrice'] as num?)?.toDouble(),
@@ -49,6 +52,7 @@ class ProductVariantModel {
       'id': id,
       'productId': productId,
       'sku': sku,
+      'barcode': barcode,
       'name': name,
       'price': price,
       'compareAtPrice': compareAtPrice,
