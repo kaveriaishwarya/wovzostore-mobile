@@ -7,6 +7,7 @@ abstract class AuthRemoteDataSource {
   Future<OtpSentResponseModel> requestOtp(String phone);
   Future<AuthResponseModel> verifyOtp(String phone, String otp);
   Future<UserModel> getMe();
+  Future<void> updateProfile(String fullName);
   Future<void> logout(String refreshToken);
 }
 
@@ -48,6 +49,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     return UserModel.fromJson(
       response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<void> updateProfile(String fullName) async {
+    await _dio.put(
+      '/api/v1/auth/me',
+      data: {'fullName': fullName},
     );
   }
 

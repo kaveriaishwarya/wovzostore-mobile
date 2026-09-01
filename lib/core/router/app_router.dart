@@ -19,6 +19,7 @@ import '../../features/auth/presentation/bloc/auth_cubit.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
+import '../../features/auth/presentation/screens/business_onboarding_screen.dart';
 
 import '../../features/catalog/presentation/bloc/catalog_cubit.dart';
 import '../../features/catalog/presentation/bloc/product_details_cubit.dart';
@@ -37,6 +38,7 @@ import '../../features/pos/presentation/screens/pos_screen.dart';
 import '../../features/merchant_customers/presentation/screens/merchant_customer_detail_screen.dart';
 import '../../features/merchant_customers/presentation/screens/merchant_customer_list_screen.dart';
 import '../../features/merchant_settings/presentation/screens/merchant_settings_screen.dart';
+import '../../features/merchant_settings/presentation/cubit/merchant_settings_cubit.dart';
 import '../../features/merchant_staff/presentation/screens/merchant_staff_detail_screen.dart';
 import '../../features/merchant_staff/presentation/screens/merchant_staff_list_screen.dart';
 import '../../features/merchant_purchases/presentation/screens/merchant_supplier_list_screen.dart';
@@ -133,6 +135,9 @@ class AppRouter {
     required bool isAuthenticated,
     required AppRole? userRole,
   }) {
+    if (location == '/business-onboarding') {
+      return null;
+    }
     if (location.startsWith('/business')) {
       if (!isAuthenticated) {
         return '/login';
@@ -185,12 +190,9 @@ class AppRouter {
       return '/login';
     }
 
-    // 3. Authenticated user accessing auth routes -> /business/dashboard for Merchant, /home for Customer
+    // 3. Authenticated user accessing auth routes -> /business-onboarding after OTP verification
     if (isAuthenticated && isAuthRoute) {
-      if (AuthRoleHelper.canAccessAnalytics(userRole)) {
-        return '/business/dashboard';
-      }
-      return '/home';
+      return '/business-onboarding';
     }
 
     // 4. Analytics role authorization check
@@ -260,6 +262,21 @@ class AppRouter {
             return BlocProvider.value(
               value: activeCubit,
               child: OtpVerificationScreen(phone: phone),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/business-onboarding',
+          builder: (context, state) {
+            final activeCubit = cubit ?? sl<AuthCubit>();
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: activeCubit),
+                BlocProvider(create: (_) => sl<MerchantSettingsCubit>()),
+              ],
+              child: BusinessOnboardingScreen(
+                onSuccess: () => context.go('/business/dashboard'),
+              ),
             );
           },
         ),

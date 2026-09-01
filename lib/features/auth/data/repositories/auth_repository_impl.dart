@@ -49,6 +49,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> updateProfile(String fullName) async {
+    try {
+      await _remoteDataSource.updateProfile(fullName);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiUnknownException(message: e.toString());
+    }
+  }
+
+  @override
   Future<void> logout(String refreshToken) async {
     try {
       await _remoteDataSource.logout(refreshToken);

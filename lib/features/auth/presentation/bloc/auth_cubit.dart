@@ -84,6 +84,17 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Updates the authenticated user's profile full name.
+  Future<void> updateProfile(String fullName) async {
+    try {
+      await _repository.updateProfile(fullName);
+      final updatedUser = await _repository.getCurrentUser();
+      emit(AuthState.authenticated(updatedUser));
+    } catch (_) {
+      rethrow;
+    }
+  }
+
   /// Logs out the user, revokes refresh token server-side, and clears local storage.
   Future<void> logout() async {
     try {

@@ -50,6 +50,9 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> updateProfile(String fullName) async {}
+
+  @override
   Future<void> logout(String refreshToken) async {}
 }
 

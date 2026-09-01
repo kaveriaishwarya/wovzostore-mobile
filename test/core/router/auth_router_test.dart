@@ -41,7 +41,7 @@ void main() {
         isMocked: false,
       );
 
-      expect(redirect, '/home');
+      expect(redirect, '/business-onboarding');
     });
 
     test('authenticated user accessing /otp-verify is redirected to /home', () {
@@ -55,7 +55,7 @@ void main() {
         isMocked: false,
       );
 
-      expect(redirect, '/home');
+      expect(redirect, '/business-onboarding');
     });
 
     test('authenticated user accessing /home is allowed (no redirect)', () {

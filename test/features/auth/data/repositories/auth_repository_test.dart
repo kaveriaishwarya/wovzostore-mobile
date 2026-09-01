@@ -75,6 +75,16 @@ class FakeAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
+  Future<void> updateProfile(String fullName) async {
+    if (shouldThrowDioException) {
+      throw DioException(
+        requestOptions: RequestOptions(path: '/api/v1/auth/me'),
+        type: DioExceptionType.connectionError,
+      );
+    }
+  }
+
+  @override
   Future<void> logout(String refreshToken) async {
     if (shouldThrowDioException) {
       throw DioException(

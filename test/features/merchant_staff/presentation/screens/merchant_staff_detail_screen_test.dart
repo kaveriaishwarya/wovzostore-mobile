@@ -33,6 +33,9 @@ class MockAuthCubit extends Cubit<AuthState> implements AuthCubit {
 
   @override
   Future<void> logout() async {}
+
+  @override
+  Future<void> updateProfile(String fullName) async {}
 }
 
 class FakeAuthRepository implements AuthRepository {
@@ -44,6 +47,9 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<UserModel> getCurrentUser() async => const UserModel(userId: 'u1', role: 'SuperAdmin');
+
+  @override
+  Future<void> updateProfile(String fullName) async {}
 
   @override
   Future<void> logout(String refreshToken) async {}
