@@ -78,20 +78,48 @@ void main() {
       );
     }
 
-    testWidgets('LoginScreen renders mobile input and +91 prefix', (WidgetTester tester) async {
+    testWidgets('LoginScreen renders Wovzo branding, Sign in header, Enter Email or Phone input, and Get OTP button', (WidgetTester tester) async {
       await tester.pumpWidget(makeTestableWidget(const LoginScreen()));
 
-      expect(find.text('Welcome to Wovzo'), findsOneWidget);
-      expect(find.text('🇮🇳 +91'), findsOneWidget);
+      expect(find.text('Wovzo'), findsOneWidget);
+      expect(find.text('Sign in'), findsOneWidget);
+      expect(find.text('Start managing your store by signing in'), findsOneWidget);
+      expect(find.text('Enter Email or Phone'), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
-      expect(find.text('Request OTP'), findsOneWidget);
+      expect(find.text('Get OTP'), findsOneWidget);
+      expect(find.text('New here? '), findsOneWidget);
+      expect(find.text('Sign Up'), findsOneWidget);
+    });
+
+    testWidgets('LoginScreen toggles between Sign in and Sign Up modes', (WidgetTester tester) async {
+      await tester.pumpWidget(makeTestableWidget(const LoginScreen()));
+
+      // Initially Sign in mode
+      expect(find.text('Sign in'), findsOneWidget);
+      expect(find.text('Start managing your store by signing in'), findsOneWidget);
+
+      // Tap Sign Up toggle link
+      await tester.tap(find.text('Sign Up'));
+      await tester.pump();
+
+      // Switches to Sign Up mode
+      expect(find.text('Sign Up'), findsOneWidget);
+      expect(find.text('Create an account to get started'), findsOneWidget);
+      expect(find.text('Have an account? '), findsOneWidget);
+
+      // Tap Sign in toggle link
+      await tester.tap(find.text('Sign in'));
+      await tester.pump();
+
+      // Switches back to Sign in mode
+      expect(find.text('Start managing your store by signing in'), findsOneWidget);
     });
 
     testWidgets('LoginScreen shows validation error for short phone number', (WidgetTester tester) async {
       await tester.pumpWidget(makeTestableWidget(const LoginScreen()));
 
       await tester.enterText(find.byType(TextFormField), '123');
-      await tester.tap(find.text('Request OTP'));
+      await tester.tap(find.text('Get OTP'));
       await tester.pump();
 
       expect(find.text('Enter a valid 10-digit mobile number'), findsOneWidget);
@@ -102,7 +130,7 @@ void main() {
       await tester.pumpWidget(makeTestableWidget(const LoginScreen()));
 
       await tester.enterText(find.byType(TextFormField), '9876543210');
-      await tester.tap(find.text('Request OTP'));
+      await tester.tap(find.text('Get OTP'));
       await tester.pumpAndSettle();
 
       expect(repository.requestOtpCalled, isTrue);

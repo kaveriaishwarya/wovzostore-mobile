@@ -78,7 +78,7 @@ void main() {
       await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await tester.pumpAndSettle();
 
-      expect(find.text('Welcome to Wovzo'), findsOneWidget);
+      expect(find.text('Wovzo'), findsOneWidget);
     });
   });
 }
