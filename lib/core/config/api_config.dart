@@ -22,19 +22,32 @@ class ApiConfig {
     this.sendTimeout = const Duration(seconds: 15),
   });
 
-  /// Base URL derived dynamically based on target platform and environment.
+  /// Base URL derived dynamically based on target platform and environment,
+  /// or overridden at compile time via `--dart-define=WOVZO_API_URL=https://...`.
   String get baseUrl {
+    const compileTimeUrl = String.fromEnvironment('WOVZO_API_URL');
+    if (compileTimeUrl.isNotEmpty) {
+      return compileTimeUrl;
+    }
+
     if (customBaseUrl != null && customBaseUrl!.isNotEmpty) {
       return customBaseUrl!;
     }
 
-    switch (environment) {
+    const compileTimeEnv = String.fromEnvironment('WOVZO_ENV');
+    final activeEnv = compileTimeEnv == 'staging'
+        ? Environment.staging
+        : compileTimeEnv == 'production'
+            ? Environment.production
+            : environment;
+
+    switch (activeEnv) {
       case Environment.development:
         if (!kIsWeb && Platform.isAndroid) {
-          // Android emulator maps host localhost to 10.0.2.2
-          return 'http://10.0.2.2:5162';
+          // Default development LAN IP for physical Android device testing
+          return 'http://192.168.1.39:5162';
         }
-        return 'https://localhost:7291';
+        return 'http://192.168.1.39:5162';
       case Environment.staging:
         return 'https://staging-api.wovzostore.com';
       case Environment.production:

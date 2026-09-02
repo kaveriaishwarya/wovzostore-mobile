@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:wovzo_mobile/core/di/injection.dart';
 import 'package:wovzo_mobile/core/router/app_router.dart';
 import 'package:wovzo_mobile/features/auth/presentation/bloc/auth_cubit.dart';
-import 'package:wovzo_mobile/features/auth/presentation/bloc/auth_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,44 +18,42 @@ void main() async {
   runApp(MyApp(authCubit: authCubit));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final AuthCubit? authCubit;
 
   const MyApp({super.key, this.authCubit});
 
   @override
-  Widget build(BuildContext context) {
-    final activeCubit = authCubit ?? (sl.isRegistered<AuthCubit>() ? sl<AuthCubit>() : null);
+  State<MyApp> createState() => _MyAppState();
+}
 
-    if (activeCubit == null) {
+class _MyAppState extends State<MyApp> {
+  late final AuthCubit? _activeCubit;
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _activeCubit = widget.authCubit ?? (sl.isRegistered<AuthCubit>() ? sl<AuthCubit>() : null);
+    _router = AppRouter.createRouter(authCubit: _activeCubit);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_activeCubit == null) {
       return MaterialApp.router(
         title: 'Wovzo Store',
         debugShowCheckedModeBanner: false,
-        routerConfig: AppRouter.createRouter(),
+        routerConfig: _router,
       );
     }
 
     return BlocProvider<AuthCubit>.value(
-      value: activeCubit,
-      child: BlocBuilder<AuthCubit, AuthState>(
-        builder: (context, state) {
-          if (state.isCheckingSession || state.status == AuthStatus.initial) {
-            return const MaterialApp(
-              debugShowCheckedModeBanner: false,
-              home: Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-            );
-          }
-
-          return MaterialApp.router(
-            title: 'Wovzo Store',
-            debugShowCheckedModeBanner: false,
-            routerConfig: AppRouter.createRouter(authCubit: activeCubit),
-          );
-        },
+      value: _activeCubit!,
+      child: MaterialApp.router(
+        title: 'Wovzo Store',
+        debugShowCheckedModeBanner: false,
+        routerConfig: _router,
       ),
     );
   }
