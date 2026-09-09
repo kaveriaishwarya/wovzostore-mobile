@@ -37,11 +37,27 @@ class MemorySecureStorageService implements SecureStorageService {
   Future<void> deleteTokens() async {
     _storage.remove('wovzo_access_token');
     _storage.remove('wovzo_refresh_token');
+    await clearActiveStoreId();
   }
 
   @override
   Future<void> clearAll() async {
     _storage.clear();
+  }
+
+  @override
+  Future<void> saveActiveStoreId(String storeId) async {
+    _storage['wovzo_active_store_id'] = storeId;
+  }
+
+  @override
+  Future<String?> getActiveStoreId() async {
+    return _storage['wovzo_active_store_id'];
+  }
+
+  @override
+  Future<void> clearActiveStoreId() async {
+    _storage.remove('wovzo_active_store_id');
   }
 }
 
@@ -74,14 +90,18 @@ void main() {
       expect(await storage.getRefreshToken(), 'refresh_xyz');
     });
 
-    test('deleteTokens removes both tokens', () async {
+    test('deleteTokens removes both tokens and activeStoreId', () async {
       await storage.saveTokens(
         accessToken: 'access_abc',
         refreshToken: 'refresh_xyz',
       );
+      await storage.saveActiveStoreId('store_777');
+      
       await storage.deleteTokens();
+      
       expect(await storage.getAccessToken(), null);
       expect(await storage.getRefreshToken(), null);
+      expect(await storage.getActiveStoreId(), null);
     });
 
     test('clearAll clears all stored data', () async {
@@ -92,6 +112,15 @@ void main() {
       await storage.clearAll();
       expect(await storage.getAccessToken(), null);
       expect(await storage.getRefreshToken(), null);
+    });
+
+    test('save, read, and clear active store id', () async {
+      await storage.saveActiveStoreId('store_999');
+      final storeId = await storage.getActiveStoreId();
+      expect(storeId, 'store_999');
+
+      await storage.clearActiveStoreId();
+      expect(await storage.getActiveStoreId(), null);
     });
   });
 }

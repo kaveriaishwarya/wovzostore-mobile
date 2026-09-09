@@ -76,6 +76,15 @@ class FakeSecureStorageService implements SecureStorageService {
 
   @override
   Future<void> saveTokens({required String accessToken, required String refreshToken}) async {}
+
+  @override
+  Future<void> clearActiveStoreId() async {}
+
+  @override
+  Future<String?> getActiveStoreId() async => 'store-1';
+
+  @override
+  Future<void> saveActiveStoreId(String storeId) async {}
 }
 
 class FakeMerchantStaffRepository implements MerchantStaffRepository {

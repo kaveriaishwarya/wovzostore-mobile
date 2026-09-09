@@ -32,6 +32,19 @@ class AuthInterceptor extends Interceptor {
         options.headers['Authorization'] = 'Bearer $token';
       }
     }
+
+    // Conditionally attach X-Store-Id header
+    final path = options.path;
+    final isTenantIndependent = path.contains('/api/v1/auth') || 
+                                path.contains('/api/v1/stores') || 
+                                path.contains('/api/v1/payments/webhook');
+
+    if (!isTenantIndependent) {
+      final activeStoreId = await _secureStorage.getActiveStoreId();
+      if (activeStoreId != null && activeStoreId.isNotEmpty) {
+        options.headers['X-Store-Id'] = activeStoreId;
+      }
+    }
     handler.next(options);
   }
 
@@ -139,6 +152,18 @@ class AuthInterceptor extends Interceptor {
     requestOptions.extra[_isRetryKey] = true;
     if (newToken != null && newToken.isNotEmpty) {
       requestOptions.headers['Authorization'] = 'Bearer $newToken';
+    }
+
+    final path = requestOptions.path;
+    final isTenantIndependent = path.contains('/api/v1/auth') || 
+                                path.contains('/api/v1/stores') || 
+                                path.contains('/api/v1/payments/webhook');
+
+    if (!isTenantIndependent) {
+      final activeStoreId = await _secureStorage.getActiveStoreId();
+      if (activeStoreId != null && activeStoreId.isNotEmpty) {
+        requestOptions.headers['X-Store-Id'] = activeStoreId;
+      }
     }
 
     final dio = Dio();

@@ -63,6 +63,61 @@ void main() {
       expect(handler.nextCalled, isTrue);
     });
 
+    test('onRequest attaches X-Store-Id if activeStoreId exists and path is not tenant-independent', () async {
+      await storage.saveActiveStoreId('store_456');
+
+      final interceptor = AuthInterceptor(
+        secureStorage: storage,
+        refreshDio: refreshDio,
+      );
+
+      final options = RequestOptions(path: '/api/v1/catalog/products');
+      final handler = _MockRequestInterceptorHandler();
+
+      await interceptor.onRequest(options, handler);
+
+      expect(options.headers['X-Store-Id'], 'store_456');
+      expect(handler.nextCalled, isTrue);
+    });
+
+    test('onRequest does NOT attach X-Store-Id if activeStoreId does not exist', () async {
+      final interceptor = AuthInterceptor(
+        secureStorage: storage,
+        refreshDio: refreshDio,
+      );
+
+      final options = RequestOptions(path: '/api/v1/catalog/products');
+      final handler = _MockRequestInterceptorHandler();
+
+      await interceptor.onRequest(options, handler);
+
+      expect(options.headers.containsKey('X-Store-Id'), isFalse);
+      expect(handler.nextCalled, isTrue);
+    });
+
+    test('onRequest does NOT attach X-Store-Id for tenant-independent endpoints', () async {
+      await storage.saveActiveStoreId('store_456');
+
+      final interceptor = AuthInterceptor(
+        secureStorage: storage,
+        refreshDio: refreshDio,
+      );
+
+      // /api/v1/stores is tenant-independent
+      final options1 = RequestOptions(path: '/api/v1/stores/me');
+      final handler1 = _MockRequestInterceptorHandler();
+      await interceptor.onRequest(options1, handler1);
+      expect(options1.headers.containsKey('X-Store-Id'), isFalse);
+      expect(handler1.nextCalled, isTrue);
+
+      // /api/v1/auth is tenant-independent
+      final options2 = RequestOptions(path: '/api/v1/auth/me');
+      final handler2 = _MockRequestInterceptorHandler();
+      await interceptor.onRequest(options2, handler2);
+      expect(options2.headers.containsKey('X-Store-Id'), isFalse);
+      expect(handler2.nextCalled, isTrue);
+    });
+
     test('onError on 401 for refresh endpoint passes through without recursion', () async {
       final interceptor = AuthInterceptor(
         secureStorage: storage,

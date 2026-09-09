@@ -12,6 +12,11 @@ import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_cubit.dart';
 
+import '../../features/store_context/data/datasources/store_remote_datasource.dart';
+import '../../features/store_context/data/repositories/store_repository_impl.dart';
+import '../../features/store_context/domain/repositories/store_repository.dart';
+import '../../features/store_context/presentation/bloc/store_context_cubit.dart';
+
 import '../../features/analytics/data/datasources/analytics_remote_datasource.dart';
 import '../../features/analytics/data/repositories/analytics_repository_impl.dart';
 import '../../features/analytics/data/services/analytics_csv_export_service.dart';
@@ -246,6 +251,33 @@ void setupAuthInjection({Dio? dioInstance}) {
     sl.registerLazySingleton<AuthCubit>(
       () => AuthCubit(
         repository: sl<AuthRepository>(),
+        secureStorage: sl<SecureStorageService>(),
+      ),
+    );
+  }
+}
+
+void setupStoreContextInjection({Dio? dioInstance}) {
+  setupCoreInjection(dioInstance: dioInstance);
+
+  if (!sl.isRegistered<StoreRemoteDataSource>()) {
+    sl.registerLazySingleton<StoreRemoteDataSource>(
+      () => StoreRemoteDataSourceImpl(dio: sl<Dio>()),
+    );
+  }
+
+  if (!sl.isRegistered<StoreRepository>()) {
+    sl.registerLazySingleton<StoreRepository>(
+      () => StoreRepositoryImpl(
+        remoteDataSource: sl<StoreRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<StoreContextCubit>()) {
+    sl.registerLazySingleton<StoreContextCubit>(
+      () => StoreContextCubit(
+        repository: sl<StoreRepository>(),
         secureStorage: sl<SecureStorageService>(),
       ),
     );
@@ -565,5 +597,6 @@ void setupInjection({
   setupMerchantSettingsInjection(dioInstance: dioInstance);
   setupMerchantStaffInjection(dioInstance: dioInstance);
   setupMerchantPurchasesInjection(dioInstance: dioInstance);
+  setupStoreContextInjection(dioInstance: dioInstance);
 }
 

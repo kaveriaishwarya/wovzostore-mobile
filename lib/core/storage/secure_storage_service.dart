@@ -8,6 +8,10 @@ abstract class SecureStorageService {
   Future<void> saveTokens({required String accessToken, required String refreshToken});
   Future<void> deleteTokens();
   Future<void> clearAll();
+  
+  Future<void> saveActiveStoreId(String storeId);
+  Future<String?> getActiveStoreId();
+  Future<void> clearActiveStoreId();
 }
 
 class SecureStorageServiceImpl implements SecureStorageService {
@@ -15,6 +19,7 @@ class SecureStorageServiceImpl implements SecureStorageService {
 
   static const _keyAccessToken = 'wovzo_access_token';
   static const _keyRefreshToken = 'wovzo_refresh_token';
+  static const _keyActiveStoreId = 'wovzo_active_store_id';
 
   SecureStorageServiceImpl({FlutterSecureStorage? storage})
       : _storage = storage ??
@@ -60,10 +65,26 @@ class SecureStorageServiceImpl implements SecureStorageService {
   Future<void> deleteTokens() async {
     await _storage.delete(key: _keyAccessToken);
     await _storage.delete(key: _keyRefreshToken);
+    await clearActiveStoreId();
   }
 
   @override
   Future<void> clearAll() async {
     await _storage.deleteAll();
+  }
+
+  @override
+  Future<void> saveActiveStoreId(String storeId) async {
+    await _storage.write(key: _keyActiveStoreId, value: storeId);
+  }
+
+  @override
+  Future<String?> getActiveStoreId() async {
+    return await _storage.read(key: _keyActiveStoreId);
+  }
+
+  @override
+  Future<void> clearActiveStoreId() async {
+    await _storage.delete(key: _keyActiveStoreId);
   }
 }
