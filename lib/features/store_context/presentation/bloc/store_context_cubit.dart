@@ -36,6 +36,12 @@ class StoreContextCubit extends Cubit<StoreContextState> {
         }
       }
 
+      if (activeStoreId == null && stores.length == 1) {
+        activeStore = stores.first;
+        activeStoreId = activeStore.id;
+        await _secureStorage.saveActiveStoreId(activeStoreId);
+      }
+
       emit(StoreContextLoaded(
         availableStores: stores,
         activeStoreId: activeStoreId,

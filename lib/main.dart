@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:wovzo_mobile/core/di/injection.dart';
 import 'package:wovzo_mobile/core/router/app_router.dart';
 import 'package:wovzo_mobile/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:wovzo_mobile/features/store_context/presentation/bloc/store_context_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,13 +30,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late final AuthCubit? _activeCubit;
+  late final StoreContextCubit? _storeContextCubit;
   late final GoRouter _router;
 
   @override
   void initState() {
     super.initState();
     _activeCubit = widget.authCubit ?? (sl.isRegistered<AuthCubit>() ? sl<AuthCubit>() : null);
-    _router = AppRouter.createRouter(authCubit: _activeCubit);
+    _storeContextCubit = sl.isRegistered<StoreContextCubit>() ? sl<StoreContextCubit>() : null;
+    _router = AppRouter.createRouter(authCubit: _activeCubit, storeContextCubit: _storeContextCubit);
   }
 
   @override
@@ -48,8 +51,12 @@ class _MyAppState extends State<MyApp> {
       );
     }
 
-    return BlocProvider<AuthCubit>.value(
-      value: _activeCubit!,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthCubit>.value(value: _activeCubit!),
+        if (_storeContextCubit != null)
+          BlocProvider<StoreContextCubit>.value(value: _storeContextCubit!),
+      ],
       child: MaterialApp.router(
         title: 'Wovzo Store',
         debugShowCheckedModeBanner: false,

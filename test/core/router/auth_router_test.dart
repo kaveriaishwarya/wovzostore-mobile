@@ -3,6 +3,7 @@ import 'package:wovzo_mobile/core/auth/auth_role.dart';
 import 'package:wovzo_mobile/core/router/app_router.dart';
 import 'package:wovzo_mobile/features/auth/data/models/user_model.dart';
 import 'package:wovzo_mobile/features/auth/presentation/bloc/auth_state.dart';
+import 'package:wovzo_mobile/features/store_context/presentation/bloc/store_context_state.dart';
 
 void main() {
   group('Auth Router & Navigation Guard Tests', () {
@@ -39,6 +40,7 @@ void main() {
         location: '/login',
         authState: state,
         isMocked: false,
+        storeContextState: const StoreContextLoaded(availableStores: [], activeStoreId: null, activeStore: null),
       );
 
       expect(redirect, '/business-onboarding');
@@ -53,6 +55,7 @@ void main() {
         location: '/otp-verify',
         authState: state,
         isMocked: false,
+        storeContextState: const StoreContextLoaded(availableStores: [], activeStoreId: null, activeStore: null),
       );
 
       expect(redirect, '/business-onboarding');
@@ -81,6 +84,7 @@ void main() {
         location: '/analytics',
         authState: state,
         isMocked: false,
+        storeContextState: const StoreContextLoaded(availableStores: [], activeStoreId: null, activeStore: null),
       );
 
       expect(redirect, '/unauthorized');

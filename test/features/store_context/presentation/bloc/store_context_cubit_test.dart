@@ -56,11 +56,26 @@ void main() {
 
       final state = cubit.state as StoreContextLoaded;
       expect(state.availableStores.length, 1);
-      expect(state.activeStoreId, isNull);
-      expect(state.activeStore, isNull);
+      // Because there is exactly 1 store available, it should auto-select it!
+      expect(state.activeStoreId, 's1');
+      expect(state.activeStore?.id, 's1');
       
       final savedStoreId = await storage.getActiveStoreId();
-      expect(savedStoreId, isNull);
+      expect(savedStoreId, 's1');
+    });
+
+    test('loadStoresAndRestoreContext auto-selects if exactly 1 store and no active store exists', () async {
+      mockRepository.storesToReturn = [store1];
+      
+      await cubit.loadStoresAndRestoreContext();
+
+      final state = cubit.state as StoreContextLoaded;
+      expect(state.availableStores.length, 1);
+      expect(state.activeStoreId, 's1');
+      expect(state.activeStore?.id, 's1');
+
+      final savedStoreId = await storage.getActiveStoreId();
+      expect(savedStoreId, 's1');
     });
 
     test('setActiveStore sets active store and persists', () async {
