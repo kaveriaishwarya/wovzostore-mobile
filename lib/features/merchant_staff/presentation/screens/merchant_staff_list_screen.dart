@@ -349,7 +349,7 @@ class _MerchantStaffListScreenState extends State<MerchantStaffListScreen> {
   void _navigateToAddStaff(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => MerchantStaffDetailScreen(staffId: 'new'),
+        builder: (_) => const MerchantStaffDetailScreen(staffId: 'new'),
       ),
     );
   }

@@ -34,20 +34,20 @@ void main() {
 
   testWidgets('shows loading indicator when state is Initial or Loading', (tester) async {
     when(() => mockCubit.state).thenReturn(const StoreContextInitial());
-    whenListen(mockCubit, Stream<StoreContextState>.empty(), initialState: const StoreContextInitial());
+    whenListen(mockCubit, const Stream<StoreContextState>.empty(), initialState: const StoreContextInitial());
     
     await tester.pumpWidget(createWidgetUnderTest());
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
     when(() => mockCubit.state).thenReturn(const StoreContextLoading());
-    whenListen(mockCubit, Stream<StoreContextState>.empty(), initialState: const StoreContextLoading());
+    whenListen(mockCubit, const Stream<StoreContextState>.empty(), initialState: const StoreContextLoading());
     await tester.pumpWidget(createWidgetUnderTest());
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
   testWidgets('shows error state and retry button', (tester) async {
     when(() => mockCubit.state).thenReturn(const StoreContextError('Failed to load'));
-    whenListen(mockCubit, Stream<StoreContextState>.empty(), initialState: const StoreContextError('Failed to load'));
+    whenListen(mockCubit, const Stream<StoreContextState>.empty(), initialState: const StoreContextError('Failed to load'));
     
     await tester.pumpWidget(createWidgetUnderTest());
     expect(find.text('Failed to load'), findsOneWidget);
@@ -60,7 +60,7 @@ void main() {
       activeStoreId: null,
       activeStore: null,
     ));
-    whenListen(mockCubit, Stream<StoreContextState>.empty(), initialState: const StoreContextLoaded(
+    whenListen(mockCubit, const Stream<StoreContextState>.empty(), initialState: const StoreContextLoaded(
       availableStores: [],
       activeStoreId: null,
       activeStore: null,
@@ -79,7 +79,7 @@ void main() {
       activeStoreId: '1',
       activeStore: store1,
     ));
-    whenListen(mockCubit, Stream<StoreContextState>.empty(), initialState: const StoreContextLoaded(
+    whenListen(mockCubit, const Stream<StoreContextState>.empty(), initialState: const StoreContextLoaded(
       availableStores: [store1, store2],
       activeStoreId: '1',
       activeStore: store1,

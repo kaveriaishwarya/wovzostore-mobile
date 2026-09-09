@@ -33,7 +33,7 @@ class MockCatalogRepository implements CatalogRepository {
       ];
   @override
   Future<PagedProductsModel> getProducts({String? categoryId, String? brandId, String? search, String? sortBy, String? sortDirection, int page = 1, int pageSize = 20}) async {
-    return PagedProductsModel(
+    return const PagedProductsModel(
       items: [
         ProductModel(
           id: 'p1',

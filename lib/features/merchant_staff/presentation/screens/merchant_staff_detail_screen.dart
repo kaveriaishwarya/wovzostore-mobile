@@ -179,7 +179,7 @@ class _MerchantStaffDetailScreenState extends State<MerchantStaffDetailScreen> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
-            value: _selectedRole,
+            initialValue: _selectedRole,
             decoration: const InputDecoration(
               labelText: 'Assigned Role *',
               prefixIcon: Icon(Icons.admin_panel_settings),
@@ -506,7 +506,7 @@ class _MerchantStaffDetailScreenState extends State<MerchantStaffDetailScreen> {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
-                    value: editRole,
+                    initialValue: editRole,
                     decoration: const InputDecoration(
                       labelText: 'Assigned Role *',
                       border: OutlineInputBorder(),

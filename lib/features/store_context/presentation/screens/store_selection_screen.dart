@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../bloc/store_context_cubit.dart';
 import '../bloc/store_context_state.dart';
@@ -124,7 +123,7 @@ class _StoreSelectionScreenState extends State<StoreSelectionScreen> {
               boxShadow: isActive
                   ? [
                       BoxShadow(
-                        color: primaryColor.withOpacity(0.1),
+                        color: primaryColor.withValues(alpha: 0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       )
@@ -134,7 +133,7 @@ class _StoreSelectionScreenState extends State<StoreSelectionScreen> {
             child: Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: isActive ? primaryColor.withOpacity(0.1) : const Color(0xFFF1F5F9),
+                  backgroundColor: isActive ? primaryColor.withValues(alpha: 0.1) : const Color(0xFFF1F5F9),
                   radius: 24,
                   child: Text(
                     store.name.isNotEmpty ? store.name[0].toUpperCase() : 'S',

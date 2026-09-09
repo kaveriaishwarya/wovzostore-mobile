@@ -20,8 +20,8 @@ void main() {
     late MemorySecureStorageService storage;
     late StoreContextCubit cubit;
 
-    final store1 = const StoreDto(id: 's1', name: 'Store 1', slug: 's1', role: 'Merchant');
-    final store2 = const StoreDto(id: 's2', name: 'Store 2', slug: 's2', role: 'Customer');
+    const store1 = StoreDto(id: 's1', name: 'Store 1', slug: 's1', role: 'Merchant');
+    const store2 = StoreDto(id: 's2', name: 'Store 2', slug: 's2', role: 'Customer');
 
     setUp(() {
       mockRepository = _MockStoreRepository();
