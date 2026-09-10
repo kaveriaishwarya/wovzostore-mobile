@@ -31,7 +31,7 @@ void main() {
       expect(redirect, '/login');
     });
 
-    test('authenticated user accessing /login is redirected to /home', () {
+    test('authenticated user accessing /login is redirected to /store-discovery', () {
       const state = AuthState.authenticated(
         UserModel(userId: 'u1', role: 'Customer'),
       );
@@ -43,10 +43,10 @@ void main() {
         storeContextState: const StoreContextLoaded(availableStores: [], activeStoreId: null, activeStore: null),
       );
 
-      expect(redirect, '/business-onboarding');
+      expect(redirect, '/store-discovery');
     });
 
-    test('authenticated user accessing /otp-verify is redirected to /home', () {
+    test('authenticated user accessing /otp-verify is redirected to /store-discovery', () {
       const state = AuthState.authenticated(
         UserModel(userId: 'u1', role: 'Customer'),
       );
@@ -58,7 +58,7 @@ void main() {
         storeContextState: const StoreContextLoaded(availableStores: [], activeStoreId: null, activeStore: null),
       );
 
-      expect(redirect, '/business-onboarding');
+      expect(redirect, '/store-discovery');
     });
 
     test('authenticated user accessing /home is allowed (no redirect)', () {

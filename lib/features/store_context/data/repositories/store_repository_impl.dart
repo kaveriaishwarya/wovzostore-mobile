@@ -12,4 +12,9 @@ class StoreRepositoryImpl implements StoreRepository {
   Future<List<StoreDto>> getMyStores() async {
     return await _remoteDataSource.getMyStores();
   }
+
+  @override
+  Future<StoreDto> getStoreBySlug(String slug) async {
+    return await _remoteDataSource.getStoreBySlug(slug);
+  }
 }

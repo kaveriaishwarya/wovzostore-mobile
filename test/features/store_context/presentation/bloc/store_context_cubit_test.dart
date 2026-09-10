@@ -12,6 +12,14 @@ class _MockStoreRepository implements StoreRepository {
   Future<List<StoreDto>> getMyStores() async {
     return storesToReturn;
   }
+
+  @override
+  Future<StoreDto> getStoreBySlug(String slug) async {
+    return storesToReturn.firstWhere(
+      (s) => s.slug == slug,
+      orElse: () => throw Exception('Store not found'),
+    );
+  }
 }
 
 void main() {

@@ -50,6 +50,7 @@ import '../../features/merchant_purchases/presentation/screens/stock_movement_li
 import '../../features/store_context/presentation/bloc/store_context_cubit.dart';
 import '../../features/store_context/presentation/bloc/store_context_state.dart';
 import '../../features/store_context/presentation/screens/store_selection_screen.dart';
+import '../../features/store_context/presentation/screens/store_discovery_screen.dart';
 
 import '../../features/customer_onboarding/presentation/widgets/customer_onboarding_gate.dart';
 
@@ -237,11 +238,14 @@ class AppRouter {
           // Missing active store
           else {
             if (availableStores.isEmpty) {
-              if (isAuthRoute || location == '/store-selection' || (location.startsWith('/business') && location != '/business-onboarding')) {
+              if (isAuthRoute || location == '/store-selection') {
+                return '/store-discovery';
+              }
+              if (location.startsWith('/business') && location != '/business-onboarding') {
                 return '/business-onboarding';
               }
             } else {
-              if (isAuthRoute || location == '/business-onboarding' || (location.startsWith('/business') && location != '/store-selection')) {
+              if (isAuthRoute || location == '/business-onboarding' || location == '/store-discovery' || (location.startsWith('/business') && location != '/store-selection')) {
                 return '/store-selection';
               }
             }
@@ -335,6 +339,16 @@ class AppRouter {
         GoRoute(
           path: '/store-selection',
           builder: (context, state) => const StoreSelectionScreen(),
+        ),
+        GoRoute(
+          path: '/store-discovery',
+          builder: (context, state) => const StoreDiscoveryScreen(),
+        ),
+        GoRoute(
+          path: '/s/:slug',
+          builder: (context, state) => StoreDiscoveryScreen(
+            initialSlug: state.pathParameters['slug'],
+          ),
         ),
         GoRoute(
           path: '/business-onboarding',

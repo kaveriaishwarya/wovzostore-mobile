@@ -4,6 +4,7 @@ import '../models/store_dto.dart';
 
 abstract class StoreRemoteDataSource {
   Future<List<StoreDto>> getMyStores();
+  Future<StoreDto> getStoreBySlug(String slug);
 }
 
 class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
@@ -21,6 +22,25 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
       }
       throw const ApiServerException(message: 'Failed to load stores');
     } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    } catch (e) {
+      throw ApiUnknownException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<StoreDto> getStoreBySlug(String slug) async {
+    try {
+      // Endpoint is public, so no auth required strictly for this call
+      final response = await _dio.get('/api/v1/stores/$slug');
+      if (response.statusCode == 200) {
+        return StoreDto.fromJson(response.data);
+      }
+      throw const ApiServerException(message: 'Failed to load store');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        throw const ApiServerException(message: 'Store not found');
+      }
       throw ApiException.fromDioException(e);
     } catch (e) {
       throw ApiUnknownException(message: e.toString());
