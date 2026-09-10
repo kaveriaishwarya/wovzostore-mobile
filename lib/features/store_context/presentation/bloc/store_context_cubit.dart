@@ -30,9 +30,9 @@ class StoreContextCubit extends Cubit<StoreContextState> {
         try {
           activeStore = stores.firstWhere((s) => s.id == savedStoreId);
         } catch (_) {
-          // The saved store ID is no longer in the user's available stores.
-          activeStoreId = null;
-          await _secureStorage.clearActiveStoreId();
+          // The saved store ID is not in the user's merchant stores.
+          // It might be a customer-only store. We do NOT clear activeStoreId.
+          // activeStore remains null because we don't have its details from /stores/me.
         }
       }
 

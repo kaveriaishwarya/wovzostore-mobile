@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wovzo_mobile/core/auth/auth_role.dart';
 import 'package:wovzo_mobile/core/di/injection.dart';
@@ -17,6 +18,10 @@ import 'package:wovzo_mobile/features/catalog/presentation/screens/categories_sc
 import 'package:wovzo_mobile/features/catalog/presentation/screens/home_screen.dart';
 import 'package:wovzo_mobile/features/catalog/presentation/screens/product_details_screen.dart';
 import 'package:wovzo_mobile/features/catalog/presentation/screens/product_list_screen.dart';
+import 'package:wovzo_mobile/features/store_context/presentation/bloc/store_context_cubit.dart';
+import 'package:wovzo_mobile/features/store_context/presentation/bloc/store_context_state.dart';
+import 'package:wovzo_mobile/features/customer_onboarding/presentation/bloc/customer_onboarding_cubit.dart';
+import 'package:wovzo_mobile/features/customer_onboarding/presentation/bloc/customer_onboarding_state.dart';
 
 class DummyCatalogRepository implements CatalogRepository {
   @override
@@ -52,6 +57,18 @@ class DummyCatalogRepository implements CatalogRepository {
   }
 }
 
+class DummyStoreContextCubit extends Cubit<StoreContextState> implements StoreContextCubit {
+  DummyStoreContextCubit() : super(const StoreContextLoaded(availableStores: [], activeStoreId: 'test_store'));
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class DummyCustomerOnboardingCubit extends Cubit<CustomerOnboardingState> implements CustomerOnboardingCubit {
+  DummyCustomerOnboardingCubit() : super(const CustomerOnboardingState(status: CustomerOnboardingStatus.success, onboardedStoreId: 'test_store'));
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
   setUp(() async {
     await sl.reset();
@@ -59,6 +76,8 @@ void main() {
     sl.registerFactory<CatalogCubit>(() => CatalogCubit(repository: sl<CatalogRepository>()));
     sl.registerFactory<ProductListCubit>(() => ProductListCubit(repository: sl<CatalogRepository>()));
     sl.registerFactory<ProductDetailsCubit>(() => ProductDetailsCubit(repository: sl<CatalogRepository>()));
+    sl.registerFactory<StoreContextCubit>(() => DummyStoreContextCubit());
+    sl.registerFactory<CustomerOnboardingCubit>(() => DummyCustomerOnboardingCubit());
   });
 
   tearDown(() async {
@@ -72,7 +91,13 @@ void main() {
         isAuthenticated: true,
       );
 
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpWidget(MultiBlocProvider(
+        providers: [
+          BlocProvider<StoreContextCubit>(create: (_) => sl<StoreContextCubit>()),
+          BlocProvider<CustomerOnboardingCubit>(create: (_) => sl<CustomerOnboardingCubit>()),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ));
       await tester.pumpAndSettle();
 
       expect(find.byType(HomeScreen), findsOneWidget);
@@ -84,7 +109,13 @@ void main() {
         isAuthenticated: true,
       );
 
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpWidget(MultiBlocProvider(
+        providers: [
+          BlocProvider<StoreContextCubit>(create: (_) => sl<StoreContextCubit>()),
+          BlocProvider<CustomerOnboardingCubit>(create: (_) => sl<CustomerOnboardingCubit>()),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ));
       await tester.pumpAndSettle();
 
       expect(find.byType(CategoriesScreen), findsOneWidget);
@@ -96,7 +127,13 @@ void main() {
         isAuthenticated: true,
       );
 
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpWidget(MultiBlocProvider(
+        providers: [
+          BlocProvider<StoreContextCubit>(create: (_) => sl<StoreContextCubit>()),
+          BlocProvider<CustomerOnboardingCubit>(create: (_) => sl<CustomerOnboardingCubit>()),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ));
       await tester.pumpAndSettle();
 
       expect(find.byType(ProductListScreen), findsOneWidget);
@@ -111,7 +148,13 @@ void main() {
         isAuthenticated: true,
       );
 
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpWidget(MultiBlocProvider(
+        providers: [
+          BlocProvider<StoreContextCubit>(create: (_) => sl<StoreContextCubit>()),
+          BlocProvider<CustomerOnboardingCubit>(create: (_) => sl<CustomerOnboardingCubit>()),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ));
       await tester.pumpAndSettle();
 
       expect(find.byType(ProductDetailsScreen), findsOneWidget);

@@ -51,6 +51,8 @@ import '../../features/store_context/presentation/bloc/store_context_cubit.dart'
 import '../../features/store_context/presentation/bloc/store_context_state.dart';
 import '../../features/store_context/presentation/screens/store_selection_screen.dart';
 
+import '../../features/customer_onboarding/presentation/widgets/customer_onboarding_gate.dart';
+
 import '../auth/auth_role.dart';
 import '../di/injection.dart';
 
@@ -222,22 +224,26 @@ class AppRouter {
             : (storeContextState as StoreContextLoaded).activeStoreId;
 
         if (!isMocked) {
-          // Zero stores -> Onboarding
-          if (availableStores.isEmpty) {
-            if (isAuthRoute || location == '/store-selection' || (location.startsWith('/business') && location != '/business-onboarding')) {
-              return '/business-onboarding';
-            }
-          } 
-          // Missing active store (Multiple stores) -> Selection
-          else if (activeStoreId == null) {
-            if (isAuthRoute || location == '/business-onboarding' || (location.startsWith('/business') && location != '/store-selection')) {
-              return '/store-selection';
-            }
-          } 
           // Has valid active store
-          else {
+          if (activeStoreId != null) {
             if (isAuthRoute || location == '/store-selection' || location == '/business-onboarding') {
               return userRole == AppRole.customer ? '/home' : '/business/dashboard';
+            }
+            // Ensure pure customers trying to access business dashboard get sent to onboarding
+            if (location.startsWith('/business') && location != '/business-onboarding' && availableStores.isEmpty) {
+              return '/business-onboarding';
+            }
+          }
+          // Missing active store
+          else {
+            if (availableStores.isEmpty) {
+              if (isAuthRoute || location == '/store-selection' || (location.startsWith('/business') && location != '/business-onboarding')) {
+                return '/business-onboarding';
+              }
+            } else {
+              if (isAuthRoute || location == '/business-onboarding' || (location.startsWith('/business') && location != '/store-selection')) {
+                return '/store-selection';
+              }
             }
           }
         } else {
@@ -355,29 +361,33 @@ class AppRouter {
         ),
         GoRoute(
           path: '/home',
-          builder: (context, state) => BlocProvider(
-            create: (_) => sl<CatalogCubit>(),
-            child: HomeScreen(
-              onCategoryTap: (categoryId) {
-                context.go('/products?categoryId=$categoryId');
-              },
-              onSearchTap: () {
-                context.go('/products');
-              },
-              onProductTap: (productId) {
-                context.push('/products/$productId');
-              },
+          builder: (context, state) => CustomerOnboardingGate(
+            child: BlocProvider(
+              create: (_) => sl<CatalogCubit>(),
+              child: HomeScreen(
+                onCategoryTap: (categoryId) {
+                  context.go('/products?categoryId=$categoryId');
+                },
+                onSearchTap: () {
+                  context.go('/products');
+                },
+                onProductTap: (productId) {
+                  context.push('/products/$productId');
+                },
+              ),
             ),
           ),
         ),
         GoRoute(
           path: '/categories',
-          builder: (context, state) => BlocProvider(
-            create: (_) => sl<CatalogCubit>(),
-            child: CategoriesScreen(
-              onCategoryTap: (categoryId, categoryName) {
-                context.go('/products?categoryId=$categoryId&categoryName=${Uri.encodeComponent(categoryName)}');
-              },
+          builder: (context, state) => CustomerOnboardingGate(
+            child: BlocProvider(
+              create: (_) => sl<CatalogCubit>(),
+              child: CategoriesScreen(
+                onCategoryTap: (categoryId, categoryName) {
+                  context.go('/products?categoryId=$categoryId&categoryName=${Uri.encodeComponent(categoryName)}');
+                },
+              ),
             ),
           ),
         ),
@@ -389,16 +399,18 @@ class AppRouter {
             final brandId = state.uri.queryParameters['brandId'];
             final search = state.uri.queryParameters['search'];
 
-            return BlocProvider(
-              create: (_) => sl<ProductListCubit>(),
-              child: ProductListScreen(
-                categoryId: categoryId,
-                categoryName: categoryName,
-                brandId: brandId,
-                searchQuery: search,
-                onProductTap: (productId) {
-                  context.push('/products/$productId');
-                },
+            return CustomerOnboardingGate(
+              child: BlocProvider(
+                create: (_) => sl<ProductListCubit>(),
+                child: ProductListScreen(
+                  categoryId: categoryId,
+                  categoryName: categoryName,
+                  brandId: brandId,
+                  searchQuery: search,
+                  onProductTap: (productId) {
+                    context.push('/products/$productId');
+                  },
+                ),
               ),
             );
           },
@@ -407,9 +419,11 @@ class AppRouter {
               path: 'slug/:slug',
               builder: (context, state) {
                 final slug = state.pathParameters['slug'];
-                return BlocProvider(
-                  create: (_) => sl<ProductDetailsCubit>(),
-                  child: ProductDetailsScreen(productSlug: slug),
+                return CustomerOnboardingGate(
+                  child: BlocProvider(
+                    create: (_) => sl<ProductDetailsCubit>(),
+                    child: ProductDetailsScreen(productSlug: slug),
+                  ),
                 );
               },
             ),
@@ -417,9 +431,11 @@ class AppRouter {
               path: ':id',
               builder: (context, state) {
                 final id = state.pathParameters['id'];
-                return BlocProvider(
-                  create: (_) => sl<ProductDetailsCubit>(),
-                  child: ProductDetailsScreen(productId: id),
+                return CustomerOnboardingGate(
+                  child: BlocProvider(
+                    create: (_) => sl<ProductDetailsCubit>(),
+                    child: ProductDetailsScreen(productId: id),
+                  ),
                 );
               },
             ),

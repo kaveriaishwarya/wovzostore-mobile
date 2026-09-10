@@ -84,6 +84,10 @@ import '../../features/merchant_purchases/presentation/bloc/merchant_purchase_cu
 import '../../features/merchant_purchases/presentation/bloc/merchant_purchase_detail_cubit.dart';
 import '../../features/merchant_purchases/presentation/bloc/stock_movement_cubit.dart';
 
+import '../../features/customer_onboarding/data/datasources/customer_remote_datasource.dart';
+import '../../features/customer_onboarding/domain/repositories/customer_onboarding_repository.dart';
+import '../../features/customer_onboarding/presentation/bloc/customer_onboarding_cubit.dart';
+
 final GetIt sl = GetIt.instance;
 
 void setupCoreInjection({
@@ -598,5 +602,27 @@ void setupInjection({
   setupMerchantStaffInjection(dioInstance: dioInstance);
   setupMerchantPurchasesInjection(dioInstance: dioInstance);
   setupStoreContextInjection(dioInstance: dioInstance);
+  setupCustomerOnboardingInjection(dioInstance: dioInstance);
 }
 
+void setupCustomerOnboardingInjection({Dio? dioInstance}) {
+  if (!sl.isRegistered<CustomerRemoteDataSource>()) {
+    sl.registerLazySingleton<CustomerRemoteDataSource>(
+      () => CustomerRemoteDataSourceImpl(dio: dioInstance ?? sl<Dio>()),
+    );
+  }
+
+  if (!sl.isRegistered<CustomerOnboardingRepository>()) {
+    sl.registerLazySingleton<CustomerOnboardingRepository>(
+      () => CustomerOnboardingRepositoryImpl(
+        remoteDataSource: sl<CustomerRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<CustomerOnboardingCubit>()) {
+    sl.registerFactory<CustomerOnboardingCubit>(
+      () => CustomerOnboardingCubit(repository: sl<CustomerOnboardingRepository>()),
+    );
+  }
+}

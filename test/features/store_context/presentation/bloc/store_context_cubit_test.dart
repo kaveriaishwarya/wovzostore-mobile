@@ -48,20 +48,20 @@ void main() {
       expect(loadedState.activeStore?.role, 'Customer');
     });
 
-    test('loadStoresAndRestoreContext clears active store if saved store no longer in list', () async {
+    test('loadStoresAndRestoreContext retains activeStoreId even if absent from merchant stores', () async {
       mockRepository.storesToReturn = [store1];
-      await storage.saveActiveStoreId('s_deleted');
+      await storage.saveActiveStoreId('customer_only_store');
 
       await cubit.loadStoresAndRestoreContext();
 
       final state = cubit.state as StoreContextLoaded;
       expect(state.availableStores.length, 1);
-      // Because there is exactly 1 store available, it should auto-select it!
-      expect(state.activeStoreId, 's1');
-      expect(state.activeStore?.id, 's1');
+      // It should retain the customer-only store ID, but activeStore object is null
+      expect(state.activeStoreId, 'customer_only_store');
+      expect(state.activeStore, isNull);
       
       final savedStoreId = await storage.getActiveStoreId();
-      expect(savedStoreId, 's1');
+      expect(savedStoreId, 'customer_only_store');
     });
 
     test('loadStoresAndRestoreContext auto-selects if exactly 1 store and no active store exists', () async {

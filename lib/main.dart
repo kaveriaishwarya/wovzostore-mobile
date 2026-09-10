@@ -6,6 +6,8 @@ import 'package:wovzo_mobile/core/router/app_router.dart';
 import 'package:wovzo_mobile/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:wovzo_mobile/features/store_context/presentation/bloc/store_context_cubit.dart';
 
+import 'package:wovzo_mobile/features/customer_onboarding/presentation/bloc/customer_onboarding_cubit.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -56,6 +58,8 @@ class _MyAppState extends State<MyApp> {
         BlocProvider<AuthCubit>.value(value: _activeCubit!),
         if (_storeContextCubit != null)
           BlocProvider<StoreContextCubit>.value(value: _storeContextCubit!),
+        if (sl.isRegistered<CustomerOnboardingCubit>())
+          BlocProvider<CustomerOnboardingCubit>(create: (_) => sl<CustomerOnboardingCubit>()),
       ],
       child: MaterialApp.router(
         title: 'Wovzo Store',
