@@ -13,11 +13,11 @@ void main() {
       dataSource = CartRemoteDataSourceImpl(dio: dio);
     });
 
-    test('getCart sends GET /api/v1/cart/{customerId}', () async {
+    test('getCart sends GET /api/v1/cart/my', () async {
       dio.httpClientAdapter = _MockHttpAdapter(
         (options) {
           expect(options.method, 'GET');
-          expect(options.path, '/api/v1/cart/cust1');
+          expect(options.path, '/api/v1/cart/my');
 
           return ResponseBody.fromString(
             '{"id": "c1", "customerId": "cust1", "status": 1, "totalQuantity": 1, "subtotal": 50.0, "discountTotal": 0.0, "grandTotal": 50.0, "items": []}',
@@ -29,16 +29,16 @@ void main() {
         },
       );
 
-      final cart = await dataSource.getCart('cust1');
+      final cart = await dataSource.getCart();
       expect(cart.id, 'c1');
       expect(cart.customerId, 'cust1');
     });
 
-    test('addCartItem sends POST /api/v1/cart/items', () async {
+    test('addCartItem sends POST /api/v1/cart/my/items', () async {
       dio.httpClientAdapter = _MockHttpAdapter(
         (options) {
           expect(options.method, 'POST');
-          expect(options.path, '/api/v1/cart/items');
+          expect(options.path, '/api/v1/cart/my/items');
 
           return ResponseBody.fromString(
             '{"id": "c1", "customerId": "cust1", "status": 1, "totalQuantity": 2, "subtotal": 100.0, "discountTotal": 0.0, "grandTotal": 100.0, "items": []}',
@@ -51,7 +51,6 @@ void main() {
       );
 
       const request = AddCartItemRequestModel(
-        customerId: 'cust1',
         productVariantId: 'v1',
         productId: 'p1',
         skuSnapshot: 'SKU1',

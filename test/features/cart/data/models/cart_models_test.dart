@@ -62,7 +62,6 @@ void main() {
 
     test('AddCartItemRequestModel.toJson serializes correct JSON body', () {
       const request = AddCartItemRequestModel(
-        customerId: 'cust1',
         productVariantId: 'v1',
         productId: 'p1',
         skuSnapshot: 'SKU-001',
@@ -74,7 +73,6 @@ void main() {
       );
 
       final json = request.toJson();
-      expect(json['customerId'], 'cust1');
       expect(json['productVariantId'], 'v1');
       expect(json['quantity'], 2);
       expect(json['unitPriceSnapshot'], 99.99);

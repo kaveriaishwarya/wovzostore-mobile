@@ -1,5 +1,4 @@
 class AddCartItemRequestModel {
-  final String customerId;
   final String productVariantId;
   final String productId;
   final String skuSnapshot;
@@ -10,7 +9,6 @@ class AddCartItemRequestModel {
   final int quantity;
 
   const AddCartItemRequestModel({
-    required this.customerId,
     required this.productVariantId,
     required this.productId,
     required this.skuSnapshot,
@@ -23,7 +21,6 @@ class AddCartItemRequestModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'customerId': customerId,
       'productVariantId': productVariantId,
       'productId': productId,
       'skuSnapshot': skuSnapshot,

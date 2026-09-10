@@ -11,31 +11,31 @@ class FakeCartRemoteDataSource implements CartRemoteDataSource {
   bool shouldThrow = false;
 
   @override
-  Future<CartModel> getCart(String customerId) async {
+  Future<CartModel> getCart() async {
     if (shouldThrow) {
       throw DioException(
-        requestOptions: RequestOptions(path: '/api/v1/cart/$customerId'),
+        requestOptions: RequestOptions(path: '/api/v1/cart/my'),
         response: Response(
-          requestOptions: RequestOptions(path: '/api/v1/cart/$customerId'),
+          requestOptions: RequestOptions(path: '/api/v1/cart/my'),
           statusCode: 404,
         ),
         type: DioExceptionType.badResponse,
       );
     }
-    return CartModel(id: 'c1', customerId: customerId, status: 1, totalQuantity: 1, subtotal: 10, discountTotal: 0, grandTotal: 10);
+    return const CartModel(id: 'c1', customerId: 'cust1', status: 1, totalQuantity: 1, subtotal: 10, discountTotal: 0, grandTotal: 10);
   }
 
   @override
   Future<CartModel> addCartItem(AddCartItemRequestModel request) async => throw UnimplementedError();
 
   @override
-  Future<CartModel> updateCartItemQuantity({required String customerId, required String productVariantId, required int quantity}) async => throw UnimplementedError();
+  Future<CartModel> updateCartItemQuantity({required String productVariantId, required int quantity}) async => throw UnimplementedError();
 
   @override
-  Future<CartModel> removeCartItem({required String customerId, required String productVariantId}) async => throw UnimplementedError();
+  Future<CartModel> removeCartItem({required String productVariantId}) async => throw UnimplementedError();
 
   @override
-  Future<CartModel> clearCart(String customerId) async => throw UnimplementedError();
+  Future<CartModel> clearCart() async => throw UnimplementedError();
 }
 
 void main() {
@@ -49,7 +49,7 @@ void main() {
     });
 
     test('getCart delegates to datasource', () async {
-      final cart = await repository.getCart('cust1');
+      final cart = await repository.getCart();
       expect(cart.customerId, 'cust1');
     });
 
@@ -57,7 +57,7 @@ void main() {
       fakeDataSource.shouldThrow = true;
 
       expect(
-        () => repository.getCart('invalid_cust'),
+        () => repository.getCart(),
         throwsA(isA<ApiNotFoundException>()),
       );
     });

@@ -8,13 +8,14 @@ import '../models/cart_model.dart';
 class CartRepositoryImpl implements CartRepository {
   final CartRemoteDataSource _remoteDataSource;
 
-  CartRepositoryImpl({required CartRemoteDataSource remoteDataSource})
-      : _remoteDataSource = remoteDataSource;
+  CartRepositoryImpl({
+    required CartRemoteDataSource remoteDataSource,
+  }) : _remoteDataSource = remoteDataSource;
 
   @override
-  Future<CartModel> getCart(String customerId) async {
+  Future<CartModel> getCart() async {
     try {
-      return await _remoteDataSource.getCart(customerId);
+      return await _remoteDataSource.getCart();
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -31,13 +32,11 @@ class CartRepositoryImpl implements CartRepository {
 
   @override
   Future<CartModel> updateCartItemQuantity({
-    required String customerId,
     required String productVariantId,
     required int quantity,
   }) async {
     try {
       return await _remoteDataSource.updateCartItemQuantity(
-        customerId: customerId,
         productVariantId: productVariantId,
         quantity: quantity,
       );
@@ -48,12 +47,10 @@ class CartRepositoryImpl implements CartRepository {
 
   @override
   Future<CartModel> removeCartItem({
-    required String customerId,
     required String productVariantId,
   }) async {
     try {
       return await _remoteDataSource.removeCartItem(
-        customerId: customerId,
         productVariantId: productVariantId,
       );
     } on DioException catch (e) {
@@ -62,9 +59,9 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   @override
-  Future<CartModel> clearCart(String customerId) async {
+  Future<CartModel> clearCart() async {
     try {
-      return await _remoteDataSource.clearCart(customerId);
+      return await _remoteDataSource.clearCart();
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }

@@ -11,11 +11,11 @@ class CartCubit extends Cubit<CartState> {
       : _repository = repository,
         super(const CartState());
 
-  Future<void> loadCart(String customerId) async {
+  Future<void> loadCart() async {
     emit(state.copyWith(status: CartStatus.loading));
 
     try {
-      final cart = await _repository.getCart(customerId);
+      final cart = await _repository.getCart();
       emit(state.copyWith(
         status: CartStatus.success,
         cart: cart,
@@ -56,7 +56,6 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> updateQuantity({
-    required String customerId,
     required String productVariantId,
     required int quantity,
   }) async {
@@ -64,7 +63,6 @@ class CartCubit extends Cubit<CartState> {
 
     try {
       final cart = await _repository.updateCartItemQuantity(
-        customerId: customerId,
         productVariantId: productVariantId,
         quantity: quantity,
       );
@@ -86,14 +84,12 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> removeItem({
-    required String customerId,
     required String productVariantId,
   }) async {
     emit(state.copyWith(status: CartStatus.updating));
 
     try {
       final cart = await _repository.removeCartItem(
-        customerId: customerId,
         productVariantId: productVariantId,
       );
       emit(state.copyWith(
@@ -113,11 +109,11 @@ class CartCubit extends Cubit<CartState> {
     }
   }
 
-  Future<void> clearCart(String customerId) async {
+  Future<void> clearCart() async {
     emit(state.copyWith(status: CartStatus.updating));
 
     try {
-      final cart = await _repository.clearCart(customerId);
+      final cart = await _repository.clearCart();
       emit(state.copyWith(
         status: CartStatus.success,
         cart: cart,

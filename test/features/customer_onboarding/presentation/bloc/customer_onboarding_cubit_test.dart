@@ -33,7 +33,7 @@ void main() {
     });
 
     test('verifyAndOnboard emits loading then success', () async {
-      final storeId = 'store-1';
+      const storeId = 'store-1';
       
       final states = <CustomerOnboardingState>[];
       final subscription = cubit.stream.listen(states.add);
@@ -51,7 +51,7 @@ void main() {
 
     test('verifyAndOnboard handles backend failure', () async {
       repository.shouldFail = true;
-      final storeId = 'store-1';
+      const storeId = 'store-1';
       
       final states = <CustomerOnboardingState>[];
       final subscription = cubit.stream.listen(states.add);
@@ -68,7 +68,7 @@ void main() {
     });
 
     test('verifyAndOnboard is idempotent for same storeId', () async {
-      final storeId = 'store-1';
+      const storeId = 'store-1';
       
       await cubit.verifyAndOnboard(storeId);
       expect(repository.callCount, 1);

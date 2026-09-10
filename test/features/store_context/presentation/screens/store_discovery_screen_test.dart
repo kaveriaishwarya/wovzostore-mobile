@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wovzo_mobile/features/store_context/data/models/store_dto.dart';
 import 'package:wovzo_mobile/features/store_context/domain/repositories/store_repository.dart';
 import 'package:wovzo_mobile/features/store_context/presentation/bloc/store_context_cubit.dart';
+import 'package:wovzo_mobile/features/store_context/presentation/bloc/store_context_state.dart';
 import 'package:wovzo_mobile/features/store_context/presentation/screens/store_discovery_screen.dart';
 
 class MockStoreRepository extends Mock implements StoreRepository {}
@@ -17,6 +18,9 @@ void main() {
   setUp(() {
     mockRepository = MockStoreRepository();
     mockCubit = MockStoreContextCubit();
+    when(() => mockCubit.stream).thenAnswer((_) => const Stream.empty());
+    when(() => mockCubit.state).thenReturn(const StoreContextInitial());
+    when(() => mockCubit.close()).thenAnswer((_) async {});
   });
 
   Widget createWidget({String? initialSlug}) {
